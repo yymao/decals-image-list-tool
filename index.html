@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DECaLS Image List Tool</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/pure/0.6.0/pure-min.css">
+  <style>
+  #main{
+    padding: 0.5em;
+    max-width: 950px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 200px;
+  }
+  #form{
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #input{
+    width:100%;
+    height: 100px;
+  }
+  #scale_unit, #layer{
+    height: 2.5em;
+  }
+  #scale{
+    width: 4em;
+  }
+  #list{
+    width: 100%;
+  }
+  .second{
+    margin-left: 30px;
+    margin-right: 30px;
+  }
+  #list img{
+    margin: 4px;
+    width:180px;
+    height:180px;
+  }
+  .credit{
+    font-size: 80%;
+  }
+  </style>
+</head>
+
+<body>
+<div id="main">
+<div id="form">
+<center>
+<form class="pure-form">
+  <fieldset>
+    <p><textarea id="input" placeholder="a list of RA ad Dec">name        ra     dec
+274-51913-230 159.815 -0.655
+275-51910-275 161.051  0.152
+275-51910-525 161.739  0.893
+276-51909-19  164.090 -0.889
+278-51900-39  168.470  0.004
+278-51900-112 168.092 -0.255
+278-51900-225 167.091 -0.216
+278-51900-430 167.114  0.249
+279-51984-456 168.956  0.860
+279-51984-520 169.472 -0.007
+281-51614-230 171.109 -0.427
+282-51658-167 173.898 -0.585
+285-51930-309 178.908 -0.771
+286-51999-359 180.271  0.114
+288-52000-173 184.837 -0.242
+349-51699-582 255.537 64.206
+353-51703-328 255.737 60.563
+353-51703-365 256.157 60.585
+355-51788-167 258.984 57.238
+355-51788-563 260.121 58.797
+358-51818-349 260.930 57.007
+387-51791-72    0.744  0.142
+389-51795-481   3.874  0.640
+390-51900-196   5.183 -0.440
+390-51900-464   5.432  0.296</textarea></p>
+    <p>
+    <select id="layer">
+      <option value="decals-dr3" selected>DECaLS DR3</option>
+      <option value="decals-dr3-model">DECaLS DR3 Model</option>
+      <option value="decals-dr3-resid">DECaLS DR3 Residual</option>
+      <option value="sdssco">SDSS</option>
+<!--      <option value="decals-dr2">DECaLS DR2</option>
+      <option value="decals-dr2-model">DECaLS DR2 Model</option>
+      <option value="decals-dr2-resid">DECaLS DR2 Residual</option>-->
+    </select>
+    <span class="second">
+      <input type="text" id="scale" value="0.25">
+      <select id="scale_unit">
+        <option value="pixscale" selected>"/pix</option>
+        <option value="zoom">zoom</option>
+      </select>
+    </span>
+    <button type="submit" class="pure-button pure-button-primary">List</button>
+    </p>
+    <p class="credit">Cutout images are from the <a href="http://legacysurvey.org/">Dark Energy Camera Legacy Survey</a>.</p>
+  </fieldset>
+
+</form>
+</center>
+</div>
+<div id="list"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+<script>
+var _cols, _i_ra, _i_dec, _delimiter, _scale, _scale_unit, _layer;
+var _output_temp = "<a href='http://skyserver.sdss.org/dr13/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}' title='${title}'><img src='http://legacysurvey.org/viewer/jpeg-cutout/?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'></a>";
+
+function parseHeader(line){
+  line = line.trim().toLowerCase();
+  _delimiter = /\s+/;
+  _cols = line.split(_delimiter);
+  _i_ra = _cols.indexOf("ra");
+  _i_dec = _cols.indexOf("dec");
+  if (_i_ra == -1 || _i_dec == -1){
+    _delimiter = ",";
+    _cols = line.split(_delimiter);
+    _i_ra = _cols.indexOf("ra");
+    _i_dec = _cols.indexOf("dec");
+  }
+}
+
+function addImage(line) {
+  var items, output;
+  items = line.trim().split(_delimiter);
+  output = _output_temp.replace(/\${ra}/g, items[_i_ra]);
+  output = output.replace(/\${dec}/g, items[_i_dec]);
+  output = output.replace("${scale_unit}", _scale_unit);
+  output = output.replace("${scale}", _scale);
+  output = output.replace("${layer}", _layer);
+  output = output.replace("${title}", items.map(function(item, i, arr){return _cols[i] + ': ' + item;}).join('\n'));
+  $("#list").append(output);
+}
+
+function run(){
+  var lines;
+  _scale = $("#scale").val()
+  _scale_unit = $("#scale_unit").val()
+  _layer = $("#layer").val()
+  lines = $("#input").val().split(/\n/);
+  parseHeader(lines.shift());
+  if (_i_ra == -1 || _i_dec == -1){
+    $("#list").html("<p>Error! \nPlease make sure the first line is header, and it contains at least \"ra\" and \"dec\". \nOnly supports space/tab/comma-separated tables.</p>");
+    return;
+  }
+  $("#list").empty();
+  lines.forEach(addImage);
+}
+
+$("form").submit(function(event){
+  event.preventDefault();
+  run();
+});
+
+$("#layer").change(run);
+$("#input").change(run);
+$("#scale").change(run);
+$("#scale_unit").change(function(){
+  if ($("#scale_unit").val() == 'zoom'){
+    $("#scale").val('14');
+  }
+  else {
+    $("#scale").val('0.25');
+  }
+  run();
+});
+
+</script>
+</body>
+</html>
