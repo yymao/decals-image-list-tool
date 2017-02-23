@@ -121,10 +121,9 @@
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script>
-var _cols, _i_ra, _i_dec, _delimiter, _scale, _scale_unit, _layer;
-var _lock = false;
-var _output_img_temp = "<img class='picture' title='${title}' src='http://legacysurvey.org/viewer/jpeg-cutout/?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'>";
-//var _output_img_temp = "<span title='${title}' class='picture'>${ra}<br>${dec}<br>layer=${layer}<br>${scale_unit}=${scale}</span>";
+var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
+var _output_img_temp = "<img class='picture ${marked}' title='${title}' src='http://legacysurvey.org/viewer/jpeg-cutout/?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'>";
+//var _output_img_temp = "<span title='${title}' class='picture ${marked}'>${ra}<br>${dec}<br>layer=${layer}<br>${scale_unit}=${scale}</span>";
 var _output_link_temp = "<a href='http://skyserver.sdss.org/dr13/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}'>${img}</a>";
 
 function parseHeader(line){
@@ -134,9 +133,15 @@ function parseHeader(line){
   _delimiter = /\s+/;
   if (line.search(",") > -1) _delimiter = ",";
   _cols = line.split(_delimiter);
+
   _i_ra = _cols.indexOf("ra");
   _i_dec = _cols.indexOf("dec");
-  if (_i_ra == -1 || _i_dec == -1){
+
+  if (_i_ra == -1 || _i_dec == -1){ // no header
+    if (_cols[_cols.length-1] == "true" || _cols[_cols.length-1] == "false"){
+      _has_mark = true;
+      _cols.pop();
+    }
     if (_cols.length == 2){
       _i_ra = 0;
       _i_dec = 1;
@@ -146,18 +151,26 @@ function parseHeader(line){
       _i_dec = 2;
     }
     else{
+      _has_mark = false;
       $("#list").html("<p>Error! \nPlease make sure the first line is header, and it contains at least \"ra\" and \"dec\". \nOnly supports space/tab/comma-separated tables.</p>");
       return -1;
     }
     _cols = _cols.fill("");
     has_header = false;
   }
+  else{ // has header
+    if (_cols[_cols.length-1] == "marked"){
+      _has_mark = true;
+      _cols.pop();
+    }
+  }
   return has_header;
 }
 
 function addImage(line) {
-  var items, output;
+  var items, output, mark;
   items = line.trim().split(_delimiter);
+  if (_has_mark) mark = (items.pop()=='true');
   output = _output_img_temp;
   if (!$("#enable_marking").prop("checked")){
     output = _output_link_temp.replace(/\${img}/g, _output_img_temp);
@@ -168,12 +181,11 @@ function addImage(line) {
   output = output.replace("${scale}", _scale);
   output = output.replace("${layer}", _layer);
   output = output.replace("${title}", items.map(function(item, i, arr){return _cols[i] + ' = ' + item;}).join('\n'));
+  output = output.replace("${marked}", (mark?"marked":""));
   $("#list").append(output);
 }
 
 function run(){
-  if (_lock) return;
-  
   var new_layer = $("#layer").val();
   var new_scale = $("#scale").val();
   var new_scale_unit = $("#scale_unit").val();
@@ -181,9 +193,7 @@ function run(){
   if (!_layer){
     if (!new_layer){
       new_layer = $("#default-layer").attr("value");
-      _lock = true;
       $("#default-layer").prop("selected", true);
-      _lock = false;
     }
     _layer = new_layer;
   }
@@ -211,8 +221,8 @@ function run(){
 
   if ($("#list").html()){
     $(".picture").each(function(){
-      var url=$(this).attr("src");
-      //var url=$(this).html();
+      var url = $(this).attr("src");
+      //var url = $(this).html();
       if (_layer != new_layer) url = url.replace("layer="+_layer, "layer="+new_layer);
       if (_scale_unit != new_scale_unit || _scale != new_scale) url = url.replace(_scale_unit+"="+_scale, new_scale_unit+"="+new_scale);
       $(this).attr("src", url);
@@ -241,21 +251,16 @@ function run(){
     }
   }
 
-  if (new_scale != _scale){
-    _lock = true;
-    $("#scale").val(new_scale);
-    _lock = false;
-  }
-  
+  if (new_scale != _scale) $("#scale").val(new_scale);
   _layer = new_layer;
   _scale = new_scale;
   _scale_unit = new_scale_unit;
 }
 
-function new_run(event){
+function new_run(){
   if (!$("#generate_output").prop("disabled") && 
       !window.confirm('Are you sure you want to reload the images? You cannot recover the marks you made!')){
-    event.preventDefault();
+    $("#enable_marking").prop("checked", !$("#enable_marking").prop("checked"));
     return;
   }
   $("#list").empty();
@@ -268,29 +273,37 @@ function output(){
   out += "\tmarked\n";
   if (out.trim() == "marked") out = "";
   out += $(".picture").map(function(){
-      return $(this).attr("title").split(/\n/).map(function(item){
-        return item.substring(item.indexOf(' = ')+3);
-      }).join("\t") + "\t" + $(this).hasClass("marked");
+    return $(this).attr("title").split(/\n/).map(function(item){
+      return item.substring(item.indexOf(' = ')+3);
+    }).join("\t") + "\t" + $(this).hasClass("marked");
   }).get().join("\n");
-  _lock = true;
   $("#input").val(out);
-  _lock = false;
   $("#generate_output").prop("disabled", true);
 }
 
-$("form").submit(new_run);
-
+$("form").submit(function(event){event.preventDefault();});
 $("#generate_output").click(output);
 $("#layer").change(run);
 $("#scale").change(run);
 $("#scale_unit").change(run);
-$("#input").change(new_run);
-$("#enable_marking").change(new_run);
+$("#input").change(function(){
+  $("#list").empty();
+  run();
+});
+$("#enable_marking").change(function(){
+  if (!$("#generate_output").prop("disabled") && 
+      !window.confirm("Are you sure you want to reload the images? You cannot recover the marks you made!")){
+    $("#enable_marking").prop("checked", !$("#enable_marking").prop("checked"));
+    return;
+  }
+  $("#list").empty();
+  run();
+});
 
 $(window).on('beforeunload', function () {
-    if (!$("#generate_output").prop("disabled")){
-        return 'Are you sure you want to close this page? You cannot recover the marks you made!';
-    }
+  if (!$("#generate_output").prop("disabled")){
+    return 'Are you sure you want to close this page? You cannot recover the marks you made!';
+  }
 });
 
 </script>
