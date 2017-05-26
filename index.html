@@ -34,24 +34,23 @@
   .optiongroup{
     margin-right: 25px;
   }
-  #list img{
-    margin: 4px;
-    width:180px;
-    height:180px;
-  }
   .credit{
     font-size: 80%;
   }
   .picture{
-    margin: 3px;
+    margin: 4px;
     border: solid 6px #FFF;
     width:180px;
     height:180px;
     display: inline-block;
+    transform-origin: center;
   }
   .marked{
     border: solid 6px #0078e7;
   }
+  .r1{transform-origin: rotate(90deg);}
+  .r2{transform-origin: rotate(180deg);}
+  .r3{transform-origin: rotate(270deg);}
   </style>
 </head>
 
@@ -124,8 +123,8 @@
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script>
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
-var _output_img_temp = "<img class='picture ${marked}' title='${title}' src='http://legacysurvey.org/viewer-dev/jpeg-cutout/?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'>";
-//var _output_img_temp = "<span title='${title}' class='picture ${marked}'>${ra}<br>${dec}<br>layer=${layer}<br>${scale_unit}=${scale}</span>";
+var _output_img_temp = "<img class='picture ${marked} ${rot}' title='${title}' src='http://legacysurvey.org/viewer-dev/jpeg-cutout/?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'>";
+//var _output_img_temp = "<span title='${title}' class='picture ${marked} ${rot}'>${ra}<br>${dec}<br>layer=${layer}<br>${scale_unit}=${scale}</span>";
 var _output_link_temp = "<a href='http://skyserver.sdss.org/dr13/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}'>${img}</a>";
 
 function parseHeader(line){
@@ -184,6 +183,7 @@ function addImage(line) {
   output = output.replace("${layer}", _layer);
   output = output.replace("${title}", items.map(function(item, i, arr){return _cols[i] + ' = ' + item;}).join('\n'));
   output = output.replace("${marked}", (mark?"marked":""));
+  output = output.replace("${rot}", "");
   $("#list").append(output);
 }
 
