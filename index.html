@@ -48,9 +48,13 @@
   .marked{
     border: solid 6px #0078e7;
   }
-  .r1{transform-origin: rotate(90deg);}
-  .r2{transform-origin: rotate(180deg);}
-  .r3{transform-origin: rotate(270deg);}
+  .r1 {transform: rotate(90deg);}
+  .r2 {transform: rotate(180deg);}
+  .r3 {transform: rotate(270deg);}
+  .r0f {transform: scaleX(-1);}
+  .r1f {transform: rotate(90deg) scaleX(-1);}
+  .r2f {transform: rotate(180deg) scaleX(-1);}
+  .r3f {transform: rotate(270deg) scaleX(-1);}
   </style>
 </head>
 
@@ -126,6 +130,8 @@ var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
 var _output_img_temp = "<img class='picture ${marked} ${rot}' title='${title}' src='http://legacysurvey.org/viewer-dev/jpeg-cutout/?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'>";
 //var _output_img_temp = "<span title='${title}' class='picture ${marked} ${rot}'>${ra}<br>${dec}<br>layer=${layer}<br>${scale_unit}=${scale}</span>";
 var _output_link_temp = "<a href='http://skyserver.sdss.org/dr13/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}'>${img}</a>";
+var _do_rand_rot = (window.location.hash.substr(1) == "randrot");
+var _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
 
 function parseHeader(line){
   var line = line.trim().toLowerCase();
@@ -171,7 +177,7 @@ function parseHeader(line){
 function addImage(line) {
   var items, output, mark;
   items = line.trim().split(_delimiter);
-  if (_has_mark) mark = (items.pop()=='true');
+  if (_has_mark) mark = (items.pop()=="true");
   output = _output_img_temp;
   if (!$("#enable_marking").prop("checked")){
     output = _output_link_temp.replace(/\${img}/g, _output_img_temp);
@@ -181,9 +187,9 @@ function addImage(line) {
   output = output.replace("${scale_unit}", _scale_unit);
   output = output.replace("${scale}", _scale);
   output = output.replace("${layer}", _layer);
-  output = output.replace("${title}", items.map(function(item, i, arr){return _cols[i] + ' = ' + item;}).join('\n'));
-  output = output.replace("${marked}", (mark?"marked":""));
-  output = output.replace("${rot}", "");
+  output = output.replace("${title}", items.map(function(item, i, arr){return _cols[i] + " = " + item;}).join("\n"));
+  output = output.replace("${marked}", mark? "marked" : "");
+  output = output.replace("${rot}", _do_rand_rot? _rot_classes[Math.floor(Math.random()*_rot_classes.length)] : "");
   $("#list").append(output);
 }
 
@@ -191,7 +197,7 @@ function run(){
   var new_layer = $("#layer").val();
   var new_scale = $("#scale").val();
   var new_scale_unit = $("#scale_unit").val();
-  
+
   if (!_layer){
     if (!new_layer){
       new_layer = $("#default-layer").attr("value");
@@ -202,7 +208,7 @@ function run(){
 
   if (!_scale) _scale = new_scale;
   if (!_scale_unit) _scale_unit = new_scale_unit;
-  
+
   if (new_layer != _layer && _scale_unit == "zoom"){
     if (_layer != "sdssco" && new_layer == "sdssco"){
       new_scale = (parseInt(_scale) - 1).toString();
@@ -213,11 +219,11 @@ function run(){
   }
 
   if (new_scale_unit != _scale_unit){
-    if (new_scale_unit == 'zoom'){
-      new_scale = '14';
+    if (new_scale_unit == "zoom"){
+      new_scale = "14";
     }
     else {
-      new_scale = '0.25';
+      new_scale = "0.25";
     }
   }
 
@@ -260,8 +266,8 @@ function run(){
 }
 
 function new_run(){
-  if (!$("#generate_output").prop("disabled") && 
-      !window.confirm('Are you sure you want to reload the images? You cannot recover the marks you made!')){
+  if (!$("#generate_output").prop("disabled") &&
+      !window.confirm("Are you sure you want to reload the images? You cannot recover the marks you made!")){
     $("#enable_marking").prop("checked", !$("#enable_marking").prop("checked"));
     return;
   }
@@ -276,7 +282,7 @@ function output(){
   if (out.trim() == "marked") out = "";
   out += $(".picture").map(function(){
     return $(this).attr("title").split(/\n/).map(function(item){
-      return item.substring(item.indexOf(' = ')+3);
+      return item.substring(item.indexOf(" = ")+3);
     }).join("\t") + "\t" + $(this).hasClass("marked");
   }).get().join("\n");
   $("#input").val(out);
@@ -293,7 +299,7 @@ $("#input").change(function(){
   run();
 });
 $("#enable_marking").change(function(){
-  if (!$("#generate_output").prop("disabled") && 
+  if (!$("#generate_output").prop("disabled") &&
       !window.confirm("Are you sure you want to reload the images? You cannot recover the marks you made!")){
     $("#enable_marking").prop("checked", !$("#enable_marking").prop("checked"));
     return;
@@ -302,9 +308,9 @@ $("#enable_marking").change(function(){
   run();
 });
 
-$(window).on('beforeunload', function () {
+$(window).on("beforeunload", function () {
   if (!$("#generate_output").prop("disabled")){
-    return 'Are you sure you want to close this page? You cannot recover the marks you made!';
+    return "Are you sure you want to close this page? You cannot recover the marks you made!";
   }
 });
 
