@@ -132,7 +132,8 @@
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
 var _output_img_temp = "<img class='picture ${marked} ${rot}' title='${title}' src='http://legacysurvey.org/viewer-dev/jpeg-cutout/?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'>";
 //var _output_img_temp = "<span title='${title}' class='picture ${marked} ${rot}'>${ra}<br>${dec}<br>layer=${layer}<br>${scale_unit}=${scale}</span>";
-var _output_link_temp = "<a href='http://skyserver.sdss.org/dr14/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}'>${img}</a>";
+var _output_link_temp_sdss = "<a href='http://skyserver.sdss.org/dr14/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}'>${img}</a>";
+var _output_link_temp_decals = "<a href='http://legacysurvey.org/viewer-dev?ra=${ra}&dec=${dec}&layer=${layer}'>${img}</a>";
 var _do_rand_rot = (window.location.hash.substr(1) == "randrot");
 var _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
 
@@ -183,13 +184,14 @@ function addImage(line) {
   if (_has_mark) mark = (items.pop()=="true");
   output = _output_img_temp;
   if (!$("#enable_marking").prop("checked")){
-    output = _output_link_temp.replace(/\${img}/g, _output_img_temp);
+    if (_layer=='sdssco') output = _output_link_temp_sdss.replace(/\${img}/g, _output_img_temp);
+    else output = _output_link_temp_decals.replace(/\${img}/g, _output_img_temp);
   }
   output = output.replace(/\${ra}/g, items[_i_ra]);
   output = output.replace(/\${dec}/g, items[_i_dec]);
   output = output.replace("${scale_unit}", _scale_unit);
   output = output.replace("${scale}", _scale);
-  output = output.replace("${layer}", _layer);
+  output = output.replace(/\${layer}/g, _layer);
   output = output.replace("${title}", items.map(function(item, i, arr){return _cols[i] + " = " + item;}).join("\n"));
   output = output.replace("${marked}", mark? "marked" : "");
   output = output.replace("${rot}", _do_rand_rot? _rot_classes[Math.floor(Math.random()*_rot_classes.length)] : "");
