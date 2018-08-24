@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Legacy Survey Image List Tool</title>
+  <title>Image List Tool for the Legacy Surveys</title>
   <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
   <style>
   #main{
@@ -17,6 +17,7 @@
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
+    text-align: center;
   }
   #input{
     width:100%;
@@ -61,7 +62,6 @@
 <body>
 <div id="main">
 <div id="form">
-<center>
 <form class="pure-form">
   <fieldset>
     <p><textarea id="input" placeholder="a list of RA ad Dec">name        ra     dec
@@ -93,8 +93,8 @@
     <p>
     <select id="layer" class="optiongroup">
       <option disabled selected value style="display: none;"> -- Select a layer -- </option>
-      <option value="ls-dr67" id="default-layer">Legacy Survey DR6+7</option>
-      <option value="decals-dr7">DECaLS DR7</option>
+      <option value="ls-dr67">Legacy Survey DR6+7</option>
+      <option value="decals-dr7" id="default-layer">DECaLS DR7</option>
       <option value="decals-dr7-model">DECaLS DR7 Model</option>
       <option value="decals-dr7-resid">DECaLS DR7 Residual</option>
       <option value="mzls+bass-dr6">MzLS+BASS DR6</option>
@@ -103,12 +103,13 @@
       <option value="decals-dr5">DECaLS DR5</option>
       <option value="decals-dr5-model">DECaLS DR5 Model</option>
       <option value="decals-dr5-resid">DECaLS DR5 Residual</option>
+      <option value="des-dr1">DES DR1</option>
       <option value="sdssco">SDSS</option>
-      <option value="unwise-neo2">unWISE NEO2</option>
-      <option value="unwise-w1w2">unWISE</option>
-      <option value="decaps">DECaPS</option>
+      <option value="unwise-neo4">unWISE NEO4</option>
+      <option value="wssa">WISE 12-μm dust</option>
       <option value="sfd">SFD Dust</option>
       <option value="halpha">Halpha</option>
+      <option value="decaps">DECaPS</option>
     </select>
     <span class="optiongroup">
       <input type="text" id="scale" value="0.25">
@@ -122,20 +123,17 @@
     </span>
     <button id="generate_output" class="pure-button" disabled>Record marks</button>
     </p>
-    <p class="credit">Cutout images are from the <a href="http://legacysurvey.org/">Legacy Surveys</a>. <a href="https://github.com/yymao/decals-image-list-tool">Web interface</a> by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.</p>
+    <p class="credit">Cutout images are retrieved from the <a href="http://legacysurvey.org/">Legacy Surveys</a>. <a href="https://github.com/yymao/decals-image-list-tool">Web interface</a> by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.</p>
   </fieldset>
-
 </form>
-</center>
 </div>
 <div id="list"></div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script>
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
 var _output_img_temp = "<img class='picture ${marked} ${rot}' title='${title}' src='http://legacysurvey.org/viewer-dev/jpeg-cutout/?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'>";
-//var _output_img_temp = "<span title='${title}' class='picture ${marked} ${rot}'>${ra}<br>${dec}<br>layer=${layer}<br>${scale_unit}=${scale}</span>";
 var _output_link_temp_sdss = "<a href='http://skyserver.sdss.org/dr14/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}'>${img}</a>";
 var _output_link_temp_decals = "<a href='http://legacysurvey.org/viewer-dev?ra=${ra}&dec=${dec}&layer=${layer}'>${img}</a>";
 var _do_rand_rot = (window.location.hash.substr(1) == "randrot");
@@ -239,11 +237,9 @@ function run(){
   if ($("#list").html()){
     $(".picture").each(function(){
       var url = $(this).attr("src");
-      //var url = $(this).html();
       if (_layer != new_layer) url = url.replace("layer="+_layer, "layer="+new_layer);
       if (_scale_unit != new_scale_unit || _scale != new_scale) url = url.replace(_scale_unit+"="+_scale, new_scale_unit+"="+new_scale);
       $(this).attr("src", url);
-      //$(this).html(url);
     });
   }
   else{
