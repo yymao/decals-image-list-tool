@@ -97,7 +97,7 @@
       <option value="dr8">Legacy Surveys DR8</option>
       <option value="dr8-model">Legacy Surveys DR8 Model</option>
       <option value="dr8-resid">Legacy Surveys DR8 Residual</option>
-      <option value="sdssco">SDSS</option>
+      <option value="sdss2">SDSS</option>
       <option value="des-dr1">DES DR1</option>
       <option value="hsc2">HSC DR2</option>
       <option value="ls-dr67">Legacy Surveys DR6+DR7</option>
@@ -185,7 +185,7 @@ function addImage(line) {
   if (_has_mark) mark = (items.pop()=="true");
   output = _output_img_temp;
   if (!$("#enable_marking").prop("checked")){
-    if (_layer=='sdssco') output = _output_link_temp_sdss.replace(/\${img}/g, _output_img_temp);
+    if (_layer=='sdss2') output = _output_link_temp_sdss.replace(/\${img}/g, _output_img_temp);
     else output = _output_link_temp_decals.replace(/\${img}/g, _output_img_temp);
   }
   output = output.replace(/\${ra}/g, items[_i_ra]);
@@ -214,15 +214,6 @@ function run(){
 
   if (!_scale) _scale = new_scale;
   if (!_scale_unit) _scale_unit = new_scale_unit;
-
-  if (new_layer != _layer && _scale_unit == "zoom"){
-    if (_layer != "sdssco" && new_layer == "sdssco"){
-      new_scale = (parseInt(_scale) - 1).toString();
-    }
-    else if (_layer == "sdssco" && new_layer != "sdssco"){
-      new_scale = (parseInt(_scale) + 1).toString();
-    }
-  }
 
   if (new_scale_unit != _scale_unit){
     if (new_scale_unit == "zoom"){
