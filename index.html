@@ -50,6 +50,10 @@
   .marked{
     border: solid 6px #0078e7;
   }
+  .warning{
+    color: #dd514c;
+    font-weight: bold;
+  }
   .r1 {transform: rotate(90deg);}
   .r2 {transform: rotate(180deg);}
   .r3 {transform: rotate(270deg);}
@@ -122,15 +126,20 @@
     </span>
     <button id="generate_output" class="pure-button" disabled>Record marks</button>
     </p>
-    <p class="credit">Cutout images are retrieved from the <a href="http://legacysurvey.org/">Legacy Surveys</a>. <a href="https://github.com/yymao/decals-image-list-tool">Web interface</a> by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.</p>
+    <p class="credit warning">The backend of the cutout service is run on NERSC, which is down for maintainance right now till July 30.</p>
+    <p class="credit">Cutout images are retrieved from <a href="http://legacysurvey.org/">Legacy Surveys</a>.
+      This web interface is made by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.
+      <a href="https://github.com/yymao/decals-image-list-tool/issues">Issues?</a></p>
   </fieldset>
 </form>
 </div>
 <div id="list"></div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
 <script>
+if ((new Date()).getTime() > 1564531200000) $("p.warning").hide();
+
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
 var _output_img_temp = "<img class='picture ${marked} ${rot}' title='${title}' src='http://legacysurvey.org/viewer-dev/jpeg-cutout/?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'>";
 var _output_link_temp_sdss = "<a href='http://skyserver.sdss.org/dr14/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}'>${img}</a>";
