@@ -53,6 +53,7 @@
   .warning{
     color: #dd514c;
     font-weight: bold;
+    display: none;
   }
   .r1 {transform: rotate(90deg);}
   .r2 {transform: rotate(180deg);}
@@ -138,7 +139,7 @@
 
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
 <script>
-if ((new Date()).getTime() > 1564531200000) $("p.warning").hide();
+//if ((new Date()).getTime() > 1564531200000) $("p.warning").hide();
 
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
 var _output_img_temp = "<img class='picture ${marked} ${rot}' title='${title}' src='http://legacysurvey.org/viewer-dev/jpeg-cutout/?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'>";
