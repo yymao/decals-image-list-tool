@@ -38,6 +38,12 @@
   }
   .credit{
     font-size: 80%;
+    color: #333;
+    line-height: 1.5;
+  }
+  .credit a, .credit a:any-link{
+    color: #0078e7;
+    text-decoration: none;
   }
   .picture{
     margin: 4px;
@@ -105,8 +111,8 @@
       <option value="dr9sv">Legacy Surveys DR9 SV (5% sky)</option>
       <option value="dr9sv-model">Legacy Surveys DR9 SV Model</option>
       <option value="dr9sv-resid">Legacy Surveys DR9 SV Residual</option>
-      <option value="sdss2">SDSS (Legacy Surveys Images)</option>
-      <option value="sdss-dr16">SDSS (SDSS Images)</option>
+      <option value="sdss2">SDSS (source: Legacy Surveys)</option>
+      <option value="sdss-dr16">SDSS (source: SDSS)</option>
       <option value="des-dr1">DES DR1</option>
       <option value="hsc2">HSC DR2</option>
       <option value="ls-dr67">Legacy Surveys DR6+DR7</option>
@@ -131,16 +137,19 @@
     <button id="generate_output" class="pure-button" disabled>Record marks</button>
     </p>
     <p class="credit warning">The backend of the cutout service is run on NERSC, which is down for maintainance right now till July 30.</p>
-    <p class="credit">Cutout images are retrieved from <a href="http://legacysurvey.org/">Legacy Surveys</a>.
-      This web interface is made by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.
-      <a href="https://github.com/yymao/decals-image-list-tool/issues">Issues?</a></p>
+    <p class="credit">
+      Cutout images are retrieved from <a href="http://legacysurvey.org/viewer-dev">Legacy Surveys Viewer</a>.
+      Web interface made by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.
+      <a href="https://github.com/yymao/decals-image-list-tool/issues">Issues?</a><br>
+      <i>No cutout image shows up? Try choosing <u>SDSS (source: SDSS)</u> from the dropdown to use <a href="http://skyserver.sdss.org/dr16/en/tools/chart/listinfo.aspx">SDSS image server</a>.</i>
+    </p>
   </fieldset>
 </form>
 </div>
 <div id="list"></div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script>
 //if ((new Date()).getTime() > 1564531200000) $("p.warning").hide();
 
