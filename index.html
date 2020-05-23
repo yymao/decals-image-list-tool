@@ -105,7 +105,8 @@
       <option value="dr9sv">Legacy Surveys DR9 SV (5% sky)</option>
       <option value="dr9sv-model">Legacy Surveys DR9 SV Model</option>
       <option value="dr9sv-resid">Legacy Surveys DR9 SV Residual</option>
-      <option value="sdss2">SDSS</option>
+      <option value="sdss2">SDSS (Legacy Surveys Images)</option>
+      <option value="sdss-dr16">SDSS (SDSS Images)</option>
       <option value="des-dr1">DES DR1</option>
       <option value="hsc2">HSC DR2</option>
       <option value="ls-dr67">Legacy Surveys DR6+DR7</option>
@@ -125,7 +126,7 @@
       </select>
     </span>
     <span class="optiongroup">
-      <input type="checkbox" id="enable_marking"/>Enable marking
+      <input type="checkbox" id="enable_marking"/> Enable marking
     </span>
     <button id="generate_output" class="pure-button" disabled>Record marks</button>
     </p>
@@ -144,13 +145,19 @@
 //if ((new Date()).getTime() > 1564531200000) $("p.warning").hide();
 
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
-var _output_img_temp = "<img class='picture ${marked} ${rot}' title='${title}' src='http://legacysurvey.org/viewer-dev/cutout.jpg?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180'>";
-var _output_link_temp_sdss = "<a href='http://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}'>${img}</a>";
-var _output_link_temp_decals = "<a href='http://legacysurvey.org/viewer-dev?ra=${ra}&dec=${dec}&layer=${layer}'>${img}</a>";
-var _do_rand_rot = (window.location.hash.substr(1) == "randrot");
-var _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
 
-function parseHeader(line){
+const _sdss_layer = "sdss-dr16";
+const _image_url = "http://legacysurvey.org/viewer-dev/cutout.jpg?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180";
+const _image_url_sdss = "http://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?TaskName=Skyserver.Chart.List&ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180";
+const _link_url = "http://legacysurvey.org/viewer-dev?ra=${ra}&dec=${dec}&layer=${layer}";
+const _link_url_sdss = "http://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}";
+
+const _img_dom_template = "<img class='picture ${marked} ${rot}' title='${title}' src='${img_url}'>";
+const _linked_img_template = "<a href='${link_url}'>${img_dom}</a>";
+const _do_rand_rot = (window.location.hash.substr(1) == "randrot");
+const _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
+
+const parseHeader = function(line){
   var line = line.trim().toLowerCase();
   var has_header = true;
 
@@ -191,27 +198,30 @@ function parseHeader(line){
   return has_header;
 }
 
-function addImage(line) {
-  var items, output, mark;
+const addImage = function(line) {
+  var items, img_dom, out, mark;
   items = line.trim().split(_delimiter);
   if (_has_mark) mark = (items.pop()=="true");
-  output = _output_img_temp;
-  if (!$("#enable_marking").prop("checked")){
-    if (_layer=='sdss2') output = _output_link_temp_sdss.replace(/\${img}/g, _output_img_temp);
-    else output = _output_link_temp_decals.replace(/\${img}/g, _output_img_temp);
+  img_dom = _img_dom_template.replace("${img_url}", (_layer==_sdss_layer ? _image_url_sdss : _image_url));
+  if ($("#enable_marking").prop("checked")){
+    out = img_dom;
   }
-  output = output.replace(/\${ra}/g, items[_i_ra]);
-  output = output.replace(/\${dec}/g, items[_i_dec]);
-  output = output.replace("${scale_unit}", _scale_unit);
-  output = output.replace("${scale}", _scale);
-  output = output.replace(/\${layer}/g, _layer);
-  output = output.replace("${title}", items.map(function(item, i, arr){return _cols[i] + " = " + item;}).join("\n"));
-  output = output.replace("${marked}", mark? "marked" : "");
-  output = output.replace("${rot}", _do_rand_rot? _rot_classes[Math.floor(Math.random()*_rot_classes.length)] : "");
-  $("#list").append(output);
+  else{
+    out = _linked_img_template.replace("${link_url}", (_layer==_sdss_layer? _link_url_sdss : _link_url)).replace("${img_dom}", img_dom);
+  }
+  out = out.replace(/\${ra}/g, items[_i_ra]);
+  out = out.replace(/\${dec}/g, items[_i_dec]);
+  out = out.replace("${scale_unit}", _scale_unit);
+  out = out.replace("${scale}", _scale);
+  out = out.replace(/\${layer}/g, _layer);
+  out = out.replace("${title}", items.map(function(item, i, arr){return _cols[i] + " = " + item;}).join("\n"));
+  out = out.replace("${marked}", mark? "marked" : "");
+  out = out.replace("${rot}", _do_rand_rot? _rot_classes[Math.floor(Math.random()*_rot_classes.length)] : "");
+  $("#list").append(out);
 }
 
-function run(){
+const run = function(){
+  window.stop();
   var new_layer = $("#layer").val();
   var new_scale = $("#scale").val();
   var new_scale_unit = $("#scale_unit").val();
@@ -236,19 +246,32 @@ function run(){
     }
   }
 
-  if ($("#list").html()){
+  if ($("#list").html() && _layer != _sdss_layer && new_layer != _sdss_layer){
     $(".picture").each(function(){
       var url = $(this).attr("src");
       if (_layer != new_layer) url = url.replace("layer="+_layer, "layer="+new_layer);
       if (_scale_unit != new_scale_unit || _scale != new_scale) url = url.replace(_scale_unit+"="+_scale, new_scale_unit+"="+new_scale);
       $(this).attr("src", url);
     });
+
+    if (new_scale != _scale) $("#scale").val(new_scale);
+    _layer = new_layer;
+    _scale = new_scale;
+    _scale_unit = new_scale_unit;
+
   }
   else{
     var lines = $("#input").val().split(/\n/);
     var has_header = parseHeader(lines[0]);
     if (has_header == -1) return;
     if (has_header) lines.shift();
+
+    if (new_scale != _scale) $("#scale").val(new_scale);
+    _layer = new_layer;
+    _scale = new_scale;
+    _scale_unit = new_scale_unit;
+
+    $("#list").empty();
     lines.forEach(addImage);
 
     if ($("#enable_marking").prop("checked")){
@@ -265,11 +288,6 @@ function run(){
       $("#generate_output").prop("disabled", true);
     }
   }
-
-  if (new_scale != _scale) $("#scale").val(new_scale);
-  _layer = new_layer;
-  _scale = new_scale;
-  _scale_unit = new_scale_unit;
 }
 
 function new_run(){
@@ -282,7 +300,7 @@ function new_run(){
   run();
 }
 
-function output(){
+const output = function(){
   var out = "";
   out += _cols.join("\t");
   out += "\tmarked\n";
