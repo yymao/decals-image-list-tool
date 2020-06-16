@@ -156,9 +156,9 @@
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
 
 const _sdss_layer = "sdss-dr16";
-const _image_url = "http://legacysurvey.org/viewer-dev/cutout.jpg?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180";
+const _image_url = "http://legacysurvey.org/viewer/cutout.jpg?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180";
 const _image_url_sdss = "http://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?TaskName=Skyserver.Chart.List&ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180";
-const _link_url = "http://legacysurvey.org/viewer-dev?ra=${ra}&dec=${dec}&layer=${layer}";
+const _link_url = "http://legacysurvey.org/viewer?ra=${ra}&dec=${dec}&layer=${layer}";
 const _link_url_sdss = "http://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}";
 
 const _img_dom_template = "<img class='picture ${marked} ${rot}' title='${title}' src='${img_url}'>";
