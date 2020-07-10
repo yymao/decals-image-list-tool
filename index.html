@@ -57,9 +57,11 @@
     border: solid 6px #0078e7;
   }
   .warning{
+    display: none;
+  }
+  .warning-highlight{
     color: #dd514c;
     font-weight: bold;
-    display: none;
   }
   .r1 {transform: rotate(90deg);}
   .r2 {transform: rotate(180deg);}
@@ -141,7 +143,8 @@
       Web interface made by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.
       <a href="https://github.com/yymao/decals-image-list-tool/issues">Issues?</a><br>
       <i>
-        <span class="warning">The backend of the Legacy Surveys cutout service is run on NERSC, which is down for maintainance right now till July 15.<br></span>
+        <span class="warning warning-highlight">The backend of the Legacy Surveys cutout service is run on NERSC, which is down for maintainance right now till July 15.<br></span>
+        <span class="warning">An alternative server for the Legacy Surveys Viewer <a href="http://viewer.legacysurvey.org/">exists</a> but has not cutout service.</span>
         <span class="no-warning">No cutout image shows up?</span>
         Try choosing <u>SDSS (source: SDSS)</u> from the dropdown menu to use 
         <a href="http://skyserver.sdss.org/dr16/en/tools/chart/listinfo.aspx">SDSS image server</a> instead.
