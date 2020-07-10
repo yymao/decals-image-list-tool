@@ -58,7 +58,6 @@
   }
   .warning{
     color: #dd514c;
-    font-weight: bold;
     display: none;
   }
   .r1 {transform: rotate(90deg);}
@@ -136,12 +135,16 @@
     </span>
     <button id="generate_output" class="pure-button" disabled>Record marks</button>
     </p>
-    <p class="credit warning">The backend of the cutout service is run on NERSC, which is down for maintainance right now till July 30.</p>
     <p class="credit">
       Cutout images are retrieved from <a href="http://legacysurvey.org/viewer-dev">Legacy Surveys Viewer</a>.
       Web interface made by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.
       <a href="https://github.com/yymao/decals-image-list-tool/issues">Issues?</a><br>
-      <i>No cutout image shows up? Try choosing <u>SDSS (source: SDSS)</u> from the dropdown to use <a href="http://skyserver.sdss.org/dr16/en/tools/chart/listinfo.aspx">SDSS image server</a>.</i>
+      <i>
+        <span class="warning">The backend of the Legacy Surveys cutout service is run on NERSC, which is down for maintainance right now till July 15.<br></span>
+        <span class="no-warning">No cutout image shows up?</span>
+        Try choosing <u>SDSS (source: SDSS)</u> from the dropdown menu to use 
+        <a href="http://skyserver.sdss.org/dr16/en/tools/chart/listinfo.aspx">SDSS image server</a> instead.
+      </i>
     </p>
   </fieldset>
 </form>
@@ -151,7 +154,15 @@
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script>
-//if ((new Date()).getTime() > 1564531200000) $("p.warning").hide();
+(function(){
+  var t = new Date()).getTime();
+  var t_out = Date.parse('10 Jul 2020 06:00:00 PDT');
+  var t_back = Date.parse('15 Jul 2020 00:00:00 PDT');
+  if ((t >= t_out) && (t < t_back)){
+    $("span.warning").show();
+    $("span.no-warning").hide();
+  }
+})();
 
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
 
