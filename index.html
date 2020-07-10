@@ -103,7 +103,7 @@
 390-51900-464   5.432  0.296</textarea></p>
     <p>
     <select id="layer" class="optiongroup">
-      <option disabled selected value style="display: none;"> -- Select a layer -- </option>
+      <option disabled selected value style="display: none;"> -- Choose a layer here! -- </option>
       <option value="dr8" id="default-layer">Legacy Surveys DR8</option>
       <option value="dr8-model">Legacy Surveys DR8 Model</option>
       <option value="dr8-resid">Legacy Surveys DR8 Residual</option>
@@ -155,7 +155,7 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script>
 (function(){
-  var t = new Date()).getTime();
+  var t = new Date().getTime();
   var t_out = Date.parse('10 Jul 2020 06:00:00 PDT');
   var t_back = Date.parse('15 Jul 2020 00:00:00 PDT');
   if ((t >= t_out) && (t < t_back)){
