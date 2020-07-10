@@ -58,6 +58,7 @@
   }
   .warning{
     color: #dd514c;
+    font-weight: bold;
     display: none;
   }
   .r1 {transform: rotate(90deg);}
@@ -111,7 +112,7 @@
       <option value="dr9sv-model">Legacy Surveys DR9 SV Model</option>
       <option value="dr9sv-resid">Legacy Surveys DR9 SV Residual</option>
       <option value="sdss2">SDSS (source: Legacy Surveys)</option>
-      <option value="sdss-dr16">SDSS (source: SDSS)</option>
+      <option value="sdss-dr16" id="sdss-layer">SDSS (source: SDSS)</option>
       <option value="des-dr1">DES DR1</option>
       <option value="hsc2">HSC DR2</option>
       <option value="ls-dr67">Legacy Surveys DR6+DR7</option>
@@ -154,11 +155,14 @@
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script>
+var nersc_is_down = false;
+
 (function(){
   var t = new Date().getTime();
   var t_out = Date.parse('10 Jul 2020 06:00:00 PDT');
   var t_back = Date.parse('15 Jul 2020 00:00:00 PDT');
   if ((t >= t_out) && (t < t_back)){
+    nersc_is_down = true;
     $("span.warning").show();
     $("span.no-warning").hide();
   }
@@ -166,7 +170,8 @@
 
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
 
-const _sdss_layer = "sdss-dr16";
+const _default_layer = $("#default-layer").attr("value");
+const _sdss_layer = $("#sdss-layer").attr("value");
 const _image_url = "http://legacysurvey.org/viewer/cutout.jpg?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180";
 const _image_url_sdss = "http://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?TaskName=Skyserver.Chart.List&ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180";
 const _link_url = "http://legacysurvey.org/viewer?ra=${ra}&dec=${dec}&layer=${layer}";
@@ -248,8 +253,14 @@ const run = function(){
 
   if (!_layer){
     if (!new_layer){
-      new_layer = $("#default-layer").attr("value");
-      $("#default-layer").prop("selected", true);
+      if (nersc_is_down){
+        new_layer = _sdss_layer;
+        $("#sdss-layer").prop("selected", true);
+      }
+      else{
+        new_layer = _default_layer;
+        $("#default-layer").prop("selected", true);
+      }
     }
     _layer = new_layer;
   }
