@@ -304,6 +304,7 @@ const run = function(){
     var has_header = parseHeader(lines[0]);
     if (has_header == -1) return;
     if (has_header) lines.shift();
+    if (lines[0].replace(/[-\s]/g, "") == "") lines.shift();
 
     if (new_scale != _scale) $("#scale").val(new_scale);
     _layer = new_layer;
