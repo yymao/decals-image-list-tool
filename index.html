@@ -225,6 +225,9 @@ const parseHeader = function(line){
       _has_mark = true;
       _cols.pop();
     }
+    else{
+      _has_mark = false;
+    }
   }
   return has_header;
 }
