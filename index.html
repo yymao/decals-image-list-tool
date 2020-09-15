@@ -178,10 +178,10 @@ const _sdss_layer = $("#sdss-layer").attr("value");
 const _use_dev = (window.location.hash.substr(1) == "dev")? "-dev" : "";
 const _image_url = "https://www.legacysurvey.org/viewer" + _use_dev + "/cutout.jpg?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180";
 const _link_url = "https://www.legacysurvey.org/viewer" + _use_dev + "?ra=${ra}&dec=${dec}&zoom=14&layer=${layer}";
-const _link_url_alt = "http://viewer.legacysurvey.org/?ra=${ra}&dec=${dec}&zoom=14&layer=${layer}";
+const _link_url_alt = "https://viewer.legacysurvey.org/?ra=${ra}&dec=${dec}&zoom=14&layer=${layer}";
 
-const _image_url_sdss = "http://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?TaskName=Skyserver.Chart.List&ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180";
-const _link_url_sdss = "http://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}";
+const _image_url_sdss = "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?TaskName=Skyserver.Chart.List&ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180";
+const _link_url_sdss = "https://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}";
 
 const _img_dom_template = "<img class='picture ${marked} ${rot}' title='${title}' src='${img_url}'>";
 const _linked_img_template = "<a href='${link_url}'>${img_dom}</a>";
