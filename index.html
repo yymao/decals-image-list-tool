@@ -143,11 +143,11 @@
       Web interface made by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.
       <a href="https://github.com/yymao/decals-image-list-tool/issues">Issues?</a><br>
       <i>
-        <span class="warning warning-highlight">The backend of the Legacy Surveys cutout service is run on NERSC, which is down for maintainance right now till July 15.<br></span>
-        <span class="warning">The <a href="http://viewer.legacysurvey.org">alternative Legacy Surveys Viewer</a> has no cutout service.</span>
+        <span class="warning warning-highlight">The maintainance at NERSC may affect the operation of the Legacy Surveys cutout service.<br></span>
+        <span class="warning">The <a href="https://viewer.legacysurvey.org">alternative Legacy Surveys Viewer</a> has no cutout service.</span>
         <span class="no-warning">No cutout image shows up?</span>
-        Try choosing <u>SDSS (source: SDSS)</u> from the dropdown menu to use 
-        <a href="http://skyserver.sdss.org/dr16/en/tools/chart/listinfo.aspx">SDSS image server</a> instead.
+        Try choosing <u>SDSS (source: SDSS)</u> from the dropdown menu to use
+        <a href="https://skyserver.sdss.org/dr16/en/tools/chart/listinfo.aspx">SDSS image server</a> instead.
       </i>
     </p>
   </fieldset>
@@ -160,18 +160,18 @@
 <script>
 var nersc_is_down = false;
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
-/*
+
 (function(){
   var t = new Date().getTime();
-  var t_out = Date.parse('10 Jul 2020 06:00:00 PDT');
-  var t_back = Date.parse('15 Jul 2020 00:00:00 PDT');
+  var t_out = Date.parse('16 Sep 2020 07:00:00 PDT');
+  var t_back = Date.parse('16 Sep 2020 20:00:00 PDT');
   if ((t >= t_out) && (t < t_back)){
-    nersc_is_down = true;
-    $("span.warning").show();
+    nersc_is_down = false;
+    $("span.warning-highlight").show();
     $("span.no-warning").hide();
   }
 })();
-*/
+
 const _default_layer = $("#default-layer").attr("value");
 const _sdss_layer = $("#sdss-layer").attr("value");
 
