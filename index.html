@@ -139,7 +139,7 @@
     <button id="generate_output" class="pure-button" disabled>Record marks</button>
     </p>
     <p class="credit">
-      Cutout images are retrieved from <a href="http://legacysurvey.org/viewer">Legacy Surveys Viewer</a>.
+      Cutout images are retrieved from <a href="https://www.legacysurvey.org/viewer">Legacy Surveys Viewer</a>.
       Web interface made by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.
       <a href="https://github.com/yymao/decals-image-list-tool/issues">Issues?</a><br>
       <i>
@@ -176,8 +176,8 @@ const _default_layer = $("#default-layer").attr("value");
 const _sdss_layer = $("#sdss-layer").attr("value");
 
 const _use_dev = (window.location.hash.substr(1) == "dev")? "-dev" : "";
-const _image_url = "http://legacysurvey.org/viewer" + _use_dev + "/cutout.jpg?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180";
-const _link_url = "http://legacysurvey.org/viewer" + _use_dev + "?ra=${ra}&dec=${dec}&zoom=14&layer=${layer}";
+const _image_url = "https://www.legacysurvey.org/viewer" + _use_dev + "/cutout.jpg?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180";
+const _link_url = "https://www.legacysurvey.org/viewer" + _use_dev + "?ra=${ra}&dec=${dec}&zoom=14&layer=${layer}";
 const _link_url_alt = "http://viewer.legacysurvey.org/?ra=${ra}&dec=${dec}&zoom=14&layer=${layer}";
 
 const _image_url_sdss = "http://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?TaskName=Skyserver.Chart.List&ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180";
