@@ -234,7 +234,7 @@ const addImage = function(line) {
   }
   else{
     out = _linked_img_template
-      .replace("${link_url}", (_layer==_sdss_layer? _link_url_sdss : _link_url)))
+      .replace("${link_url}", (_layer==_sdss_layer? _link_url_sdss : _link_url))
       .replace("${img_dom}", img_dom);
   }
   out = out.replace(/\${ra}/g, items[_i_ra]);
