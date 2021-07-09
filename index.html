@@ -156,19 +156,18 @@ var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
 
 (function(){
   var t = new Date().getTime();
-  var t_out = Date.parse('16 Sep 2020 07:00:00 PDT');
-  var t_back = Date.parse('16 Sep 2020 20:00:00 PDT');
+  var t_out = Date.parse('9 Jul 2021 10:00:00 PDT');
+  var t_back = Date.parse('12 Jul 2021 20:00:00 PDT');
   if ((t >= t_out) && (t < t_back)){
-    nersc_is_down = false;
-    $("span.warning-highlight").show();
-    $("span.no-warning").hide();
+    nersc_is_down = true;
+    $("span.warning").show();
   }
 })();
 
 const _default_layer = $("#default-layer").attr("value");
 const _sdss_layer = $("#sdss-layer").attr("value");
 
-const _use_dev = (window.location.hash.substr(1) == "dev")? "-dev" : "";
+const _use_dev = (window.location.hash.substr(1) == "dev" || nersc_is_down)? "-dev" : "";
 const _image_url = "https://www.legacysurvey.org/viewer" + _use_dev + "/cutout.jpg?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180";
 const _link_url = "https://www.legacysurvey.org/viewer" + _use_dev + "?ra=${ra}&dec=${dec}&zoom=14&layer=${layer}";
 const _link_url_alt = "https://viewer.legacysurvey.org/?ra=${ra}&dec=${dec}&zoom=14&layer=${layer}";
@@ -235,7 +234,7 @@ const addImage = function(line) {
   }
   else{
     out = _linked_img_template
-      .replace("${link_url}", (_layer==_sdss_layer? _link_url_sdss : ((nersc_is_down && _layer=="dr8")? _link_url_alt : _link_url)))
+      .replace("${link_url}", (_layer==_sdss_layer? _link_url_sdss : _link_url)))
       .replace("${img_dom}", img_dom);
   }
   out = out.replace(/\${ra}/g, items[_i_ra]);
@@ -257,14 +256,8 @@ const run = function(){
 
   if (!_layer){
     if (!new_layer){
-      if (nersc_is_down){
-        new_layer = _sdss_layer;
-        $("#sdss-layer").prop("selected", true);
-      }
-      else{
         new_layer = _default_layer;
         $("#default-layer").prop("selected", true);
-      }
     }
     _layer = new_layer;
   }
