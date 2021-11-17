@@ -24,7 +24,7 @@
     width:100%;
     height: 100px;
   }
-  #scale_unit, #layer, #scale{
+  #layer, #scale{
     height: 2.5em;
     display: inline-block !important;
     margin-bottom: 0 !important;
@@ -35,7 +35,7 @@
   #list{
     width: 100%;
   }
-  .options > div{
+  .options > label{
     margin: 3px 10px;
     display: inline-block;
   }
@@ -99,14 +99,14 @@ NGC5602d    214.8035	50.4409
 NGC5602e    215.4408	50.5062
 NGC5602f    215.5340	50.6674</textarea></p>
     <div class="options">
-      <div>
+      <label>
         <select id="layer">
           <option disabled selected value style="display: none;"> --&gt; Choose image source &lt;-- </option>
           <option value="ls-dr9" id="default-layer">Legacy Surveys DR9</option>
           <option value="ls-dr9-model">Legacy Surveys DR9 Model</option>
           <option value="ls-dr9-resid">Legacy Surveys DR9 Residual</option>
           <option value="sdss">SDSS (source: Legacy Surveys)</option>
-          <option value="sdss-dr16" id="sdss-layer">SDSS (source: SDSS)</option>
+          <option value="dr16:sdss">SDSS (source: SDSS)</option>
           <option value="unwise-neo6">unWISE NEO6</option>
           <option value="unwise-cat-model">unWISE Model</option>
           <option value="des-dr1">DES DR1</option>
@@ -115,21 +115,20 @@ NGC5602f    215.5340	50.6674</textarea></p>
           <option value="halpha">Halpha</option>
           <option value="sfd">SFD Dust</option>
           <option value="vlass1.2">VLASS</option>
+          <option value="poss2ukstu_red:dss">DSS: POSS2/UKSTU Red</option>
+          <option value="poss2ukstu_blue:dss">DSS: POSS2/UKSTU Blue</option>
+          <option value="poss2ukstu_ir:dss">DSS: POSS2/UKSTU IR</option>
         </select>
-      </div>
-      <div>
-        <input type="text" id="scale" value="0.25">
-        <select id="scale_unit">
-          <option value="pixscale" selected>"/pix</option>
-          <option value="zoom">zoom</option>
-        </select>
-      </div>
-      <div>
+      </label>
+      <label>
+        Side length = <input type="text" id="scale" value="0.75"> arcmin
+      </label>
+      <label>
         <input type="checkbox" id="enable_marking"/> Enable marking
-      </div>
-      <div>
+      </label>
+      <label>
         <button id="generate_output" class="pure-button" disabled>Record marks</button>
-      </div>
+      </label>
     </div>
     <p class="credit">
       Cutout images are retrieved from <a href="https://www.legacysurvey.org/viewer">Legacy Surveys Viewer</a>.
@@ -139,8 +138,8 @@ NGC5602f    215.5340	50.6674</textarea></p>
         <span class="warning warning-highlight">The maintainance at NERSC may affect the operation of the Legacy Surveys cutout service.<br></span>
         <span class="warning">An <a href="https://viewer.legacysurvey.org">alternative Legacy Surveys Viewer</a> is available but it has no cutout service.<br></span>
         <span class="no-warning">No cutout image shows up?</span>
-        Try choosing <u>SDSS (source: SDSS)</u> from the dropdown menu to use
-        <a href="https://skyserver.sdss.org/dr16/en/tools/chart/listinfo.aspx">SDSS image server</a> instead.
+        Try choosing <u>SDSS (source: SDSS)</u> or <u>DSS</u> from the dropdown menu to use
+        <a href="https://skyserver.sdss.org/dr16/en/tools/chart/listinfo.aspx">SDSS</a>/<a href="https://archive.stsci.edu/cgi-bin/dss_form">DSS</a> image servers instead.
       </i>
     </p>
   </fieldset>
@@ -152,7 +151,7 @@ NGC5602f    215.5340	50.6674</textarea></p>
 <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
 <script>
 var nersc_is_down = false;
-var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
+var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _size, _layer, _source;
 
 (function(){
   var t = new Date().getTime();
@@ -165,18 +164,22 @@ var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _scale_unit, _layer;
 })();
 
 const _default_layer = $("#default-layer").attr("value");
-const _sdss_layer = $("#sdss-layer").attr("value");
 
 const _use_dev = (window.location.hash.substr(1) == "dev")? "-dev" : "";
-const _image_url = "https://www.legacysurvey.org/viewer" + _use_dev + "/cutout.jpg?ra=${ra}&dec=${dec}&${scale_unit}=${scale}&layer=${layer}&size=180";
-const _link_url = "https://www.legacysurvey.org/viewer" + _use_dev + "?ra=${ra}&dec=${dec}&zoom=14&layer=${layer}";
-const _link_url_alt = "https://viewer.legacysurvey.org/?ra=${ra}&dec=${dec}&zoom=14&layer=${layer}";
-
-const _image_url_sdss = "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?TaskName=Skyserver.Chart.List&ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180";
-const _link_url_sdss = "https://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}";
+const _image_urls = {
+  "desi": "https://www.legacysurvey.org/viewer" + _use_dev + "/cutout.jpg?ra=${ra}&dec=${dec}&pixscale=${scale}&layer=${layer}&size=180",
+  "sdss": "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?TaskName=Skyserver.Chart.List&ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180",
+  "dss": "https://archive.stsci.edu/cgi-bin/dss_search?v=${layer}&r=${ra}&d=${dec}&e=J2000&h=${size}&w=${size}&f=gif"
+}
+const _link_urls = {
+  "desi": "https://www.legacysurvey.org/viewer" + _use_dev + "?ra=${ra}&dec=${dec}&layer=${layer}&zoom=14",
+  "sdss": "https://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}",
+  "desi-alt": "https://viewer.legacysurvey.org/?ra=${ra}&dec=${dec}&layer=${layer}&zoom=14",
+  "dss": "https://archive.stsci.edu/cgi-bin/dss_search?v=${layer}&r=${ra}&d=${dec}&e=J2000&h=15&w=15&f=gif"
+}
 
 const _img_dom_template = "<img class='picture ${marked} ${rot}' title='${title}' src='${img_url}'>";
-const _linked_img_template = "<a href='${link_url}'>${img_dom}</a>";
+const _linked_img_template = "<a class='plink' href='${link_url}'>${img_dom}</a>";
 const _do_rand_rot = (window.location.hash.substr(1) == "randrot");
 const _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
 
@@ -228,19 +231,19 @@ const addImage = function(line) {
   var items, img_dom, out, mark;
   items = line.trim().split(_delimiter);
   if (_has_mark) mark = (items.pop()=="true");
-  img_dom = _img_dom_template.replace("${img_url}", (_layer==_sdss_layer ? _image_url_sdss : _image_url));
+  img_dom = _img_dom_template.replace("${img_url}", _image_urls[_source]);
   if ($("#enable_marking").prop("checked")){
     out = img_dom;
   }
   else{
     out = _linked_img_template
-      .replace("${link_url}", (_layer==_sdss_layer? _link_url_sdss : _link_url))
+      .replace("${link_url}", _link_urls[_source])
       .replace("${img_dom}", img_dom);
   }
-  out = out.replace(/\${ra}/g, items[_i_ra]);
-  out = out.replace(/\${dec}/g, items[_i_dec]);
-  out = out.replace("${scale_unit}", _scale_unit);
-  out = out.replace("${scale}", _scale);
+  out = out.replace(/\${ra}/g, parseFloat(items[_i_ra]).toString());
+  out = out.replace(/\${dec}/g, parseFloat(items[_i_dec]).toString());
+  out = out.replace(/\${scale}/g, _scale);
+  out = out.replace(/\${size}/g, _size);
   out = out.replace(/\${layer}/g, _layer);
   out = out.replace("${title}", items.map(function(item, i, arr){return _cols[i] + " = " + item;}).join("\n"));
   out = out.replace("${marked}", mark? "marked" : "");
@@ -250,9 +253,11 @@ const addImage = function(line) {
 
 const run = function(){
   window.stop();
-  var new_layer = $("#layer").val();
-  var new_scale = $("#scale").val();
-  var new_scale_unit = $("#scale_unit").val();
+  var new_layer_source = $("#layer").val().split(":");
+  var new_layer = new_layer_source[0];
+  var new_source = new_layer_source[1] || "desi";
+  var new_size = parseFloat($("#scale").val()).toFixed(7).replace(/0+$/, '');
+  var new_scale = (parseFloat($("#scale").val()) / 3).toFixed(7).replace(/0+$/, '');
 
   if (!_layer){
     if (!new_layer){
@@ -262,31 +267,29 @@ const run = function(){
     _layer = new_layer;
   }
 
+  if (!_source) _source = new_source;
   if (!_scale) _scale = new_scale;
-  if (!_scale_unit) _scale_unit = new_scale_unit;
+  if (!_size) _size = new_size;
 
-  if (new_scale_unit != _scale_unit){
-    if (new_scale_unit == "zoom"){
-      new_scale = "14";
-    }
-    else {
-      new_scale = "0.25";
-    }
-  }
-
-  if ($("#list").html() && _layer != _sdss_layer && new_layer != _sdss_layer){
+  if ($("#list").html() && _source == new_source){
     $(".picture").each(function(){
       var url = $(this).attr("src");
-      if (_layer != new_layer) url = url.replace("layer="+_layer, "layer="+new_layer);
-      if (_scale_unit != new_scale_unit || _scale != new_scale) url = url.replace(_scale_unit+"="+_scale, new_scale_unit+"="+new_scale);
+      url = url.replace("="+_layer+"&", "="+new_layer+"&");
+      url = url.replace("="+_scale+"&", "="+new_scale+"&");
+      url = url.replace("h="+_size+"&w="+_size, "h="+new_size+"&w="+new_size);
       $(this).attr("src", url);
     });
 
-    if (new_scale != _scale) $("#scale").val(new_scale);
+    $(".plink").each(function(){
+      var url = $(this).attr("href");
+      url = url.replace("="+_layer+"&", "="+new_layer+"&");
+      $(this).attr("href", url);
+    });
+
+    _source = new_source;
     _layer = new_layer;
     _scale = new_scale;
-    _scale_unit = new_scale_unit;
-
+    _size = new_size;
   }
   else{
     var lines = $("#input").val().split(/\n/);
@@ -295,10 +298,10 @@ const run = function(){
     if (has_header) lines.shift();
     if (lines[0].replace(/[-\s]/g, "") == "") lines.shift();
 
-    if (new_scale != _scale) $("#scale").val(new_scale);
+    _source = new_source;
     _layer = new_layer;
     _scale = new_scale;
-    _scale_unit = new_scale_unit;
+    _size = new_size;
 
     $("#list").empty();
     lines.forEach(addImage);
@@ -347,7 +350,6 @@ $("form").submit(function(event){event.preventDefault();});
 $("#generate_output").click(output);
 $("#layer").change(run);
 $("#scale").change(run);
-$("#scale_unit").change(run);
 $("#input").change(function(){
   $("#list").empty();
   run();
