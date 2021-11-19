@@ -8,6 +8,7 @@ It is similar to the [SDSS Image List Tool](https://skyserver.sdss.org/dr16/en/t
 but specifically designed for target selection and inspection.
 
 The image cutouts are retrieved from the
-[DESI Legacy Imaging Surveys](https://legacysurvey.org/) (which also includes DES, SDSS, HSC, etc.),
-[Sloan Digital Sky Surveys (SDSS)](https://skyserver.sdss.org/dr16/),
+[DESI Legacy Imaging Surveys Sky Viewer](https://www.legacysurvey.org/viewer)
+(which also [includes WISE, GALEX, DES, SDSS, HSC, etc.](https://www.legacysurvey.org/acknowledgment/)),
+the [Sloan Digital Sky Surveys (SDSS)](https://skyserver.sdss.org/dr16/),
 and the [STScI Digitized Sky Survey (DSS)](https://archive.stsci.edu/cgi-bin/dss_form).
