@@ -163,7 +163,7 @@ NGC5602f    215.5340	50.6674</textarea></p>
 <div id="list"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.slim.min.js" integrity="sha512-6ORWJX/LrnSjBzwefdNUyLCMTIsGoNP6NftMy2UAm1JBm6PRZCO1d7OHBStWpVFZLO+RerTvqX/Z9mBFfCJZ4A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cash/8.1.0/cash.min.js" integrity="sha512-sgDgZX/GgfD7qSeMjPN/oE9EQgXZJW55FIjdexVT60QerG2gAWhR9QDQEGt3O90Dy9jVcwMWsoTMhLgldIiKXw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 var nersc_is_down = false;
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _size, _layer, _source;
@@ -193,7 +193,7 @@ const _link_urls = {
   "dss": "https://archive.stsci.edu/cgi-bin/dss_search?v=${layer}&r=${ra}&d=${dec}&e=J2000&h=15&w=15&f=gif"
 }
 
-const _img_dom_template = "<img class='picture ${marked} ${rot}' title='${title}' src='${img_url}'>";
+const _img_dom_template = "<img class='picture ${marked} ${rot}' title='${title}' src='${img_url}'></img>";
 const _linked_img_template = "<a class='plink' href='${link_url}'>${img_dom}</a>";
 const _do_rand_rot = (window.location.hash.substr(1) == "randrot");
 const _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
@@ -255,14 +255,14 @@ const addImage = function(line) {
       .replace("${link_url}", _link_urls[_source])
       .replace("${img_dom}", img_dom);
   }
-  out = out.replace(/\${ra}/g, parseFloat(items[_i_ra]).toString());
-  out = out.replace(/\${dec}/g, parseFloat(items[_i_dec]).toString());
-  out = out.replace(/\${scale}/g, _scale);
-  out = out.replace(/\${size}/g, _size);
-  out = out.replace(/\${layer}/g, _layer);
-  out = out.replace("${title}", items.map(function(item, i, arr){return _cols[i] + " = " + item;}).join("\n"));
-  out = out.replace("${marked}", mark? "marked" : "");
-  out = out.replace("${rot}", _do_rand_rot? _rot_classes[Math.floor(Math.random()*_rot_classes.length)] : "");
+  out = out.replace(/\${ra}/g, parseFloat(items[_i_ra]).toString())
+           .replace(/\${dec}/g, parseFloat(items[_i_dec]).toString())
+           .replace(/\${scale}/g, _scale)
+           .replace(/\${size}/g, _size)
+           .replace(/\${layer}/g, _layer)
+           .replace("${title}", items.map(function(item, i, arr){return _cols[i] + " = " + item;}).join("\n"))
+           .replace("${marked}", mark? "marked" : "")
+           .replace("${rot}", _do_rand_rot? _rot_classes[Math.floor(Math.random()*_rot_classes.length)] : "");
   $("#list").append(out);
 }
 
@@ -289,9 +289,9 @@ const run = function(){
   if ($("#list").html() && _source == new_source){
     $(".picture").each(function(){
       var url = $(this).attr("src");
-      url = url.replace("="+_layer+"&", "="+new_layer+"&");
-      url = url.replace("="+_scale+"&", "="+new_scale+"&");
-      url = url.replace("h="+_size+"&w="+_size, "h="+new_size+"&w="+new_size);
+      url = url.replace("="+_layer+"&", "="+new_layer+"&")
+               .replace("="+_scale+"&", "="+new_scale+"&")
+               .replace("h="+_size+"&w="+_size, "h="+new_size+"&w="+new_size);
       $(this).attr("src", url);
     });
 
@@ -322,7 +322,7 @@ const run = function(){
     lines.forEach(addImage);
 
     if ($("#enable_marking").prop("checked")){
-      $(".picture").click(function(){
+      $(".picture").on("click", function(){
         $(this).toggleClass("marked");
         $("#generate_output").prop("disabled", false);
       });
@@ -361,15 +361,15 @@ const output = function(){
   $("#generate_output").prop("disabled", true);
 }
 
-$("form").submit(function(event){event.preventDefault();});
-$("#generate_output").click(output);
-$("#layer").change(run);
-$("#scale").change(run);
-$("#input").change(function(){
+$("form").on("submit", function(event){event.preventDefault();});
+$("#generate_output").on("click", output);
+$("#layer").on("change", run);
+$("#scale").on("change", run);
+$("#input").on("change", function(){
   $("#list").empty();
   run();
 });
-$("#enable_marking").change(function(){
+$("#enable_marking").on("change", function(){
   if (!$("#generate_output").prop("disabled") &&
       !window.confirm("Are you sure you want to reload the images? You cannot recover the marks you made!")){
     $("#enable_marking").prop("checked", !$("#enable_marking").prop("checked"));
