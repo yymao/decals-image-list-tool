@@ -16,7 +16,11 @@
     gtag('config', 'UA-32378628-1');
   </script>
 
-  <title>Image List Tool for the Legacy Surveys</title>
+  <title>Cutout Image List Tool for DESI Legacy Imaging Surveys and More</title>
+  <meta name="description"
+  content="Display image cutouts for a list of sky coordinates, allowing you to inspect and mark selections. Images are retrived from DESI Legacy Imaging Surveys, SDSS, and DSS.">
+  <meta name="keywords"
+    content="astronomy, survey, cutout, image, imaging, photmetric, SDSS, DESI, DSS, DES, HSC, GALEX, WISE, DESI Legacy Imaging Surveys, target selection, javascript" />
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.6/base.min.css" integrity="sha512-LuNflZud8JqmAW51BErW7CwyrjuWqD/fqpekzJAFoUOJpZDEYFLhRPXYByNe8Yy9Z8IAJAe6Alqo0ivJXWv5Hw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.6/buttons.min.css" integrity="sha512-6fgfhyE9ySgHhLG/VlUzsLMAl5ASlf77G0KyTajPvyYXyMItY3h98gEX1Pnzjo3P2QjDQW4S95CX05ycHeiffQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -120,16 +124,16 @@ NGC5602f    215.5340	50.6674</textarea></p>
           <option value="ls-dr9" id="default-layer">Legacy Surveys DR9</option>
           <option value="ls-dr9-model">Legacy Surveys DR9 Model</option>
           <option value="ls-dr9-resid">Legacy Surveys DR9 Residual</option>
-          <option value="sdss">SDSS (source: Legacy Surveys)</option>
-          <option value="dr16:sdss">SDSS (source: SDSS)</option>
-          <option value="unwise-neo6">unWISE NEO6</option>
+          <option value="unwise-neo6">unWISE NEO6 12um Dust Map</option>
           <option value="unwise-cat-model">unWISE Model</option>
-          <option value="des-dr1">DES DR1</option>
-          <option value="hsc2">HSC DR2</option>
+          <option value="sdss">SDSS (reprocessed by Legacy Surveys)</option>
+          <option value="des-dr1">Dark Energy Survey (DES) DR1</option>
+          <option value="hsc-dr2">Hyper Suprime-Cam (HSC) SSP DR2</option>
           <option value="galex">GALEX</option>
-          <option value="halpha">Halpha</option>
-          <option value="sfd">SFD Dust</option>
+          <option value="halpha">Halpha Map</option>
+          <option value="sfd">SFD Dust Map</option>
           <option value="vlass1.2">VLASS</option>
+          <option value="dr16:sdss">SDSS: DR16</option>
           <option value="poss2ukstu_red:dss">DSS: POSS2/UKSTU Red</option>
           <option value="poss2ukstu_blue:dss">DSS: POSS2/UKSTU Blue</option>
           <option value="poss2ukstu_ir:dss">DSS: POSS2/UKSTU IR</option>
@@ -146,15 +150,14 @@ NGC5602f    215.5340	50.6674</textarea></p>
       </label>
     </div>
     <p class="credit">
-      Cutout images are retrieved from <a href="https://www.legacysurvey.org/viewer">Legacy Surveys Viewer</a>.
-      Web interface made by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.
+      Images retrieved from <a href="https://www.legacysurvey.org/acknowledgment/">Legacy Surveys Sky Viewer</a>, <a href="https://skyserver.sdss.org/dr16/en/tools/chart/listinfo.aspx" title="Sloan Digital Sky Surveys">SDSS</a>, and <a href="https://archive.stsci.edu/cgi-bin/dss_form" title="Digitized Sky Survey">DSS</a>.
+      Web interface by <a href="https://yymao.github.io">Yao-Yuan Mao</a>.
       <a href="https://github.com/yymao/decals-image-list-tool/issues">Issues?</a><br>
       <i>
-        <span class="warning warning-highlight">The maintainance at NERSC may affect the operation of the Legacy Surveys cutout service.<br></span>
-        <span class="warning">An <a href="https://viewer.legacysurvey.org">alternative Legacy Surveys Viewer</a> is available but it has no cutout service.<br></span>
+        <span class="warning warning-highlight">Maintainance at NERSC may affect the cutout service of the DESI Legacy Imaging Surveys.<br></span>
+        <span class="warning">An <a href="https://viewer.legacysurvey.org">alternative Legacy Surveys Viewer</a> is available, but has no cutout service.<br></span>
         <span class="no-warning">No cutout image shows up?</span>
-        Try choosing <u>SDSS (source: SDSS)</u> or <u>DSS</u> from the dropdown menu to use
-        <a href="https://skyserver.sdss.org/dr16/en/tools/chart/listinfo.aspx">SDSS</a>/<a href="https://archive.stsci.edu/cgi-bin/dss_form">DSS</a> image servers instead.
+        Try choosing <u>SDSS: DR16</u> or <u>DSS: *</u> from the dropdown menu.
       </i>
     </p>
   </fieldset>
