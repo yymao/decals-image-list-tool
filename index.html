@@ -49,7 +49,7 @@
     margin-bottom: 0 !important;
   }
   #scale{
-    width: 4em;
+    width: 5em;
   }
   #list{
     width: 100%;
@@ -101,7 +101,7 @@
 <form class="pure-form">
   <fieldset>
     <!-- Examples come from SAGA Satellites. See https://sagasurvey.org/ -->
-    <p><textarea id="input" placeholder="List of R.A. and Decl.">SAGA_SAT    RA  DEC
+    <p><textarea id="input" placeholder="Paste a list of R.A. and Decl."  required>SAGA_SAT    RA  DEC
 NGC6181b    247.8399	20.1841
 NGC6181c    248.3932	19.9461
 NGC6181d    248.0513	19.6957
@@ -140,7 +140,7 @@ NGC5602f    215.5340	50.6674</textarea></p>
         </select>
       </label>
       <label>
-        Side length = <input type="text" id="scale" value="0.75"> arcmin
+        Side length = <input type="number" id="scale" value="0.75" step="any" min="0.01" max="999" required> arcmin
       </label>
       <label>
         <input type="checkbox" id="enable_marking"/> Enable marking
@@ -366,13 +366,13 @@ const output = function(){
 
 $("form").on("submit", function(event){event.preventDefault();});
 $("#generate_output").on("click", output);
-$("#layer").on("change", run);
-$("#scale").on("change", run);
-$("#input").on("change", function(){
+$("#layer").on("input", run);
+$("#scale").on("input", run);
+$("#input").on("input", function(){
   $("#list").empty();
   run();
 });
-$("#enable_marking").on("change", function(){
+$("#enable_marking").on("input", function(){
   if (!$("#generate_output").prop("disabled") &&
       !window.confirm("Are you sure you want to reload the images? You cannot recover the marks you made!")){
     $("#enable_marking").prop("checked", !$("#enable_marking").prop("checked"));
@@ -387,6 +387,8 @@ $(window).on("beforeunload", function () {
     return "Are you sure you want to close this page? You cannot recover the marks you made!";
   }
 });
+
+document.getElementById("layer").focus();
 
 </script>
 </body>
