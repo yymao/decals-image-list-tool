@@ -293,7 +293,7 @@ const run = function(){
     $(".picture").each(function(){
       var url = $(this).attr("src");
       url = url.replace("="+_layer+"&", "="+new_layer+"&")
-               .replace("="+_scale+"&", "="+new_scale+"&")
+               .replace("scale="+_scale+"&", "scale="+new_scale+"&")
                .replace("h="+_size+"&w="+_size, "h="+new_size+"&w="+new_size);
       $(this).attr("src", url);
     });
