@@ -223,11 +223,11 @@ const parseHeader = function(line_raw) {
   _cols = line.split(_delimiter).map(col => col.trim());
 
   const _cols_lower = _cols.map(col => col.toLowerCase());
-  for (const key of ["ra", "r.a.", "radeg", "right ascension", "r"]) {
+  for (const key of ["ra", "r.a.", "radeg", "ra2000", "right ascension", "r"]) {
     _i_ra = _cols_lower.indexOf(key);
     if (_i_ra > -1) break;
   }
-  for (const key of ["dec", "decl", "decl.", "dedeg", "declination", "de", "d"]) {
+  for (const key of ["dec", "decl", "decl.", "dedeg", "de2000", "declination", "de", "d"]) {
     _i_dec = _cols_lower.indexOf(key);
     if (_i_ra > -1) break;
   }
