@@ -303,7 +303,7 @@ const run = function() {
   if ((current_source != _source) || (!current_layer) || (!current_scale) || (!current_size) || $(".pic").length == 0){
     record_output();
 
-    var lines = $("#input").val().split(/\n/);
+    var lines = $("#input").val().trim().split(/\n/);
     const has_header = parseHeader(lines[0]);
     if (has_header == -1) return;
     if (has_header) lines.shift();
