@@ -266,6 +266,7 @@ const parseHeader = function(line_raw) {
 };
 
 const addImage = function(line) {
+  if (!line.replace(/[-=\s]/g, "")) return;
   var items, out, mark;
   items = line.trim().split(_delimiter);
   if (_has_mark) mark = (items.pop().trim().toLowerCase() == "true");
@@ -306,7 +307,6 @@ const run = function() {
     const has_header = parseHeader(lines[0]);
     if (has_header == -1) return;
     if (has_header) lines.shift();
-    if (lines[0].replace(/[-\s]/g, "") == "") lines.shift();
 
     $("#list").empty();
     lines.forEach(addImage);
