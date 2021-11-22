@@ -20,21 +20,22 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.6/forms.min.css" integrity="sha512-rh8hys9VgPr84sRqt9OaFfOtGwy2i5E1FShkMZi9A6Rq5LO0oP3CGK3jPA4dXBnuVCjFG547uSz3/sio1K7R3Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
   #main{
-    padding: 0.5em;
-    max-width: 1000px;
+    padding: 7px;
+    max-width: 1020px;
+    min-width: min-content;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 200px;
   }
   #form{
     max-width: 960px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     text-align: center;
   }
   #input{
-    width:100%;
+    width: calc(100% - 0.8em);
     height: 100px;
+    margin: 0 0.4em;
   }
   #layer, #scale{
     height: 2.5em;
@@ -45,10 +46,12 @@
     width: 5em;
   }
   #list{
-    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    width: 200px;
   }
   .options > label{
-    margin: 3px 10px;
+    margin: 0.1em 0.4em;
     display: inline-block;
   }
   .credit{
@@ -60,16 +63,15 @@
     color: #0078e7;
     text-decoration: none;
   }
-  .picture{
-    margin: 4px;
-    border: solid 6px #FFF;
-    width:180px;
-    height:180px;
+  .pic{
+    margin: 2px;
+    padding: 0;
     display: inline-block;
     transform-origin: center;
+    border: solid 8px #FFF;
   }
   .marked{
-    border: solid 6px #0078e7;
+    border-color:#0078e7;
   }
   .warning{
     display: none;
@@ -85,6 +87,18 @@
   .r1f {transform: rotate(90deg) scaleX(-1);}
   .r2f {transform: rotate(180deg) scaleX(-1);}
   .r3f {transform: rotate(270deg) scaleX(-1);}
+  @media (min-width: 420px) {
+    #list{ width: 400px;}
+  }
+  @media (min-width: 620px) {
+    #list{ width: 600px;}
+  }
+  @media (min-width: 820px) {
+    #list{ width: 800px;}
+  }
+  @media (min-width: 1020px) {
+    #list{ width: 1000px;}
+  }
   </style>
 </head>
 
@@ -150,7 +164,7 @@ NGC5602f    215.5340	50.6674</textarea></p>
         <span class="warning warning-highlight">Maintainance at NERSC may affect the cutout service of the DESI Legacy Imaging Surveys.<br></span>
         <span class="warning">An <a href="https://viewer.legacysurvey.org">alternative Legacy Surveys Viewer</a> is available, but has no cutout service.<br></span>
         <span class="no-warning">No cutout image shows up?</span>
-        Try choosing <u>SDSS: DR16</u> or <u>DSS: *</u> from the dropdown menu.
+        Try choosing <u>SDSS:DR16</u> or <u>DSS</u> from the dropdown menu.
       </i>
     </p>
   </fieldset>
@@ -164,6 +178,13 @@ NGC5602f    215.5340	50.6674</textarea></p>
 var nersc_is_down = false;
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _size, _layer, _source;
 
+const search_params = (new URL(document.location.href)).searchParams;
+const _use_dev = search_params.has("dev") ? "-dev" : "";
+const _do_rand_rot = search_params.has("randrot");
+var _select_layer = search_params.get("layer");
+if (!_select_layer && $("#layer > option[value='" + _select_layer + "']").length == 0) _select_layer = false;
+
+/* When NERSC is down
 (function(){
   var t = new Date().getTime();
   var t_out = Date.parse('9 Jul 2021 10:00:00 PDT');
@@ -173,40 +194,46 @@ var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _size, _layer, _source;
     $("span.warning").show();
   }
 })();
+*/
 
-const _default_layer = $("#default-layer").attr("value");
-
-const _use_dev = (window.location.hash.substr(1) == "dev")? "-dev" : "";
 const _image_urls = {
   "desi": "https://www.legacysurvey.org/viewer" + _use_dev + "/cutout.jpg?ra=${ra}&dec=${dec}&pixscale=${scale}&layer=${layer}&size=180",
   "sdss": "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?TaskName=Skyserver.Chart.List&ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180",
   "dss": "https://archive.stsci.edu/cgi-bin/dss_search?v=${layer}&r=${ra}&d=${dec}&e=J2000&h=${size}&w=${size}&f=gif"
-}
+};
+
 const _link_urls = {
   "desi": "https://www.legacysurvey.org/viewer" + _use_dev + "?ra=${ra}&dec=${dec}&layer=${layer}&zoom=14",
   "sdss": "https://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}",
   "desi-alt": "https://viewer.legacysurvey.org/?ra=${ra}&dec=${dec}&layer=${layer}&zoom=14",
   "dss": "https://archive.stsci.edu/cgi-bin/dss_search?v=${layer}&r=${ra}&d=${dec}&e=J2000&h=15&w=15&f=gif"
-}
+};
 
-const _img_dom_template = "<img class='picture ${marked} ${rot}' title='${title}' src='${img_url}'></img>";
+const _img_dom_template = "<img class='pic ${marked} ${rot}' title='${title}' src='${img_url}' width='180' height='180' />";
 const _linked_img_template = "<a class='plink' href='${link_url}'>${img_dom}</a>";
-const _do_rand_rot = (window.location.hash.substr(1) == "randrot");
 const _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
+const _default_layer = $("#default-layer").attr("value");
 
-const parseHeader = function(line){
-  var line = line.trim().toLowerCase();
+const parseHeader = function(line_raw) {
+  const line = line_raw.trim();
   var has_header = true;
 
   _delimiter = /\s+/;
   if (line.search(",") > -1) _delimiter = ",";
-  _cols = line.split(_delimiter);
+  _cols = line.split(_delimiter).map(col => col.trim());
 
-  _i_ra = _cols.indexOf("ra");
-  _i_dec = _cols.indexOf("dec");
+  const _cols_lower = _cols.map(col => col.toLowerCase());
+  for (const key of ["ra", "r.a.", "radeg", "right ascension", "r"]) {
+    _i_ra = _cols_lower.indexOf(key);
+    if (_i_ra > -1) break;
+  }
+  for (const key of ["dec", "decl", "decl.", "dedeg", "declination", "de", "d"]) {
+    _i_dec = _cols_lower.indexOf(key);
+    if (_i_ra > -1) break;
+  }
 
-  if (_i_ra == -1 || _i_dec == -1){ // no header
-    if (_cols[_cols.length-1] == "true" || _cols[_cols.length-1] == "false"){
+  if (_i_ra == -1 || _i_dec == -1){  // no header
+    if (_cols_lower[_cols.length-1] == "true" || _cols_lower[_cols.length-1] == "false"){
       _has_mark = true;
       _cols.pop();
     }
@@ -226,8 +253,8 @@ const parseHeader = function(line){
     _cols = _cols.fill("");
     has_header = false;
   }
-  else{ // has header
-    if (_cols[_cols.length-1] == "marked"){
+  else{  // has header
+    if (_cols_lower[_cols.length-1] == "marked"){
       _has_mark = true;
       _cols.pop();
     }
@@ -236,152 +263,126 @@ const parseHeader = function(line){
     }
   }
   return has_header;
-}
+};
 
 const addImage = function(line) {
-  var items, img_dom, out, mark;
+  var items, out, mark;
   items = line.trim().split(_delimiter);
-  if (_has_mark) mark = (items.pop()=="true");
-  img_dom = _img_dom_template.replace("${img_url}", _image_urls[_source]);
-  if ($("#enable_marking").prop("checked")){
-    out = img_dom;
-  }
-  else{
-    out = _linked_img_template
-      .replace("${link_url}", _link_urls[_source])
-      .replace("${img_dom}", img_dom);
-  }
-  out = out.replace(/\${ra}/g, parseFloat(items[_i_ra]).toString())
-           .replace(/\${dec}/g, parseFloat(items[_i_dec]).toString())
-           .replace(/\${scale}/g, _scale)
-           .replace(/\${size}/g, _size)
-           .replace(/\${layer}/g, _layer)
-           .replace("${title}", items.map(function(item, i, arr){return _cols[i] + " = " + item;}).join("\n"))
-           .replace("${marked}", mark? "marked" : "")
-           .replace("${rot}", _do_rand_rot? _rot_classes[Math.floor(Math.random()*_rot_classes.length)] : "");
-  $("#list").append(out);
-}
+  if (_has_mark) mark = (items.pop().trim().toLowerCase() == "true");
+  out = _linked_img_template
+       .replace("${img_dom}", _img_dom_template)
+       .replace("${link_url}", _link_urls[_source])
+       .replace("${img_url}", _image_urls[_source])
+       .replace(/\${ra}/g, parseFloat(items[_i_ra]).toString())
+       .replace(/\${dec}/g, parseFloat(items[_i_dec]).toString())
+       .replace(/\${scale}/g, _scale)
+       .replace(/\${size}/g, _size)
+       .replace(/\${layer}/g, _layer)
+       .replace("${title}", items.map((item, i) => (_cols[i] + " = " + item.trim())).join("\n"))
+       .replace("${marked}", mark ? "marked" : "")
+       .replace("${rot}", _do_rand_rot ? _rot_classes[Math.floor(Math.random()*_rot_classes.length)] : "");
+  $(out).appendTo(document.getElementById("list"));
+};
 
-const run = function(){
+const run = function() {
   window.stop();
-  var new_layer_source = $("#layer").val().split(":");
-  var new_layer = new_layer_source[0];
-  var new_source = new_layer_source[1] || "desi";
-  var new_size = parseFloat($("#scale").val()).toFixed(7).replace(/0+$/, '');
-  var new_scale = (parseFloat($("#scale").val()) / 3).toFixed(7).replace(/0+$/, '');
 
-  if (!_layer){
-    if (!new_layer){
-        new_layer = _default_layer;
-        $("#default-layer").prop("selected", true);
-    }
-    _layer = new_layer;
-  }
+  const current_layer = _layer;
+  const current_source = _source;
+  const current_size = _size;
+  const current_scale = _scale;
 
-  if (!_source) _source = new_source;
-  if (!_scale) _scale = new_scale;
-  if (!_size) _size = new_size;
+  const layer_source = $("#layer").val().split(":");
+  _layer = layer_source[0] || _default_layer;
+  _source = layer_source[1] || "desi";
+  _size = parseFloat($("#scale").val()).toFixed(7).replace(/0+$/, '');
+  _scale = (parseFloat($("#scale").val()) / 3).toFixed(7).replace(/0+$/, '');
+  if (!layer_source[0]) $("#default-layer").prop("selected", true);
 
-  if ($("#list").html() && _source == new_source){
-    $(".picture").each(function(){
-      var url = $(this).attr("src");
-      url = url.replace("="+_layer+"&", "="+new_layer+"&")
-               .replace("scale="+_scale+"&", "scale="+new_scale+"&")
-               .replace("h="+_size+"&w="+_size, "h="+new_size+"&w="+new_size);
-      $(this).attr("src", url);
-    });
+  if ((current_source != _source) || (!current_layer) || (!current_scale) || (!current_size) || $(".pic").length == 0){
+    record_output();
 
-    $(".plink").each(function(){
-      var url = $(this).attr("href");
-      url = url.replace("="+_layer+"&", "="+new_layer+"&");
-      $(this).attr("href", url);
-    });
-
-    _source = new_source;
-    _layer = new_layer;
-    _scale = new_scale;
-    _size = new_size;
-  }
-  else{
     var lines = $("#input").val().split(/\n/);
-    var has_header = parseHeader(lines[0]);
+    const has_header = parseHeader(lines[0]);
     if (has_header == -1) return;
     if (has_header) lines.shift();
     if (lines[0].replace(/[-\s]/g, "") == "") lines.shift();
 
-    _source = new_source;
-    _layer = new_layer;
-    _scale = new_scale;
-    _size = new_size;
-
     $("#list").empty();
     lines.forEach(addImage);
-
-    if ($("#enable_marking").prop("checked")){
-      $(".picture").on("click", function(){
-        $(this).toggleClass("marked");
-        $("#generate_output").prop("disabled", false);
-      });
-      $("#input").prop("readonly", true);
-      $("#generate_output").addClass("pure-button-primary");
-    }
-    else{
-      $("#input").prop("readonly", false);
-      $("#generate_output").removeClass("pure-button-primary");
-      $("#generate_output").prop("disabled", true);
-    }
-  }
-}
-
-function new_run(){
-  if (!$("#generate_output").prop("disabled") &&
-      !window.confirm("Are you sure you want to reload the images? You cannot recover the marks you made!")){
-    $("#enable_marking").prop("checked", !$("#enable_marking").prop("checked"));
+    update_click_events();
     return;
   }
-  $("#list").empty();
-  run();
-}
 
-const output = function(){
-  var out = "";
-  out += _cols.join("\t");
-  out += "\tmarked\n";
-  if (out.trim() == "marked") out = "";
-  out += $(".picture").map(function(){
-    return $(this).attr("title").split(/\n/).map(function(item){
-      return item.substring(item.indexOf(" = ")+3);
-    }).join("\t") + "\t" + $(this).hasClass("marked");
-  }).get().join("\n");
+  if (current_layer == _layer && current_size == _size && current_scale == _scale) return;
+  $(".pic").each((i, elem) => {
+    const url = $(elem).attr("src")
+                .replace("="+current_layer+"&", "="+_layer+"&")
+                .replace("scale="+current_scale+"&", "scale="+_scale+"&")
+                .replace("h="+current_size+"&w="+current_size, "h="+_size+"&w="+_size);
+    $(elem).attr("src", url);
+  });
+
+  if (current_layer == _layer) return;
+  $(".plink").each((i, elem) => {
+    const url = $(elem).attr("href").replace("="+current_layer+"&", "="+_layer+"&");
+    $(elem).attr("href", url);
+  });
+};
+
+const update_click_events = function(){
+  if ($("#enable_marking").prop("checked")){
+    $(".plink").on("click", (event) => { event.preventDefault(); });
+    $(".pic").on("click", (event) => {
+      if (event.ctrlKey) { window.open( $(event.target).parent().attr("href") ); }
+      else {
+        $(event.target).toggleClass("marked");
+        $("#generate_output").prop("disabled", false);
+     }
+    });
+    $("#input").prop("readonly", true);
+    $("#generate_output").addClass("pure-button-primary");
+  }
+  else{
+    record_output();
+    $(".plink, .pic").off("click");
+    $("#input").prop("readonly", false);
+    $("#generate_output").removeClass("pure-button-primary");
+  }
+};
+
+const record_output = function(){
+  if ($("#generate_output").prop("disabled") || $(".pic").length == 0) return;
+  var out = _cols.join("\t") + "\tmarked\n";
+  if (out.trim() == "marked") out = "";  // no header
+  out += $(".pic").map((i, elem) => (
+    $(elem).attr("title").split(/\n/).map(item => item.substring(item.indexOf(" = ") + 3)).join("\t")
+    + "\t" + $(elem).hasClass("marked")
+  )).get().join("\n");
   $("#input").val(out);
   $("#generate_output").prop("disabled", true);
 }
 
-$("form").on("submit", function(event){event.preventDefault();});
-$("#generate_output").on("click", output);
+$("form").on("submit", (event) => {event.preventDefault();});
+$("#generate_output").on("click", record_output);
 $("#layer").on("input", run);
 $("#scale").on("input", run);
-$("#input").on("input", function(){
-  $("#list").empty();
-  run();
+$("#input").on("input", () => { _source = ""; run(); });
+$("#enable_marking").on("input", () => {
+  if ($(".pic").length == 0) { run(); }
+  else { update_click_events() };
 });
-$("#enable_marking").on("input", function(){
-  if (!$("#generate_output").prop("disabled") &&
-      !window.confirm("Are you sure you want to reload the images? You cannot recover the marks you made!")){
-    $("#enable_marking").prop("checked", !$("#enable_marking").prop("checked"));
-    return;
-  }
-  $("#list").empty();
-  run();
-});
-
-$(window).on("beforeunload", function () {
+$(window).on("beforeunload", () => {
   if (!$("#generate_output").prop("disabled")){
     return "Are you sure you want to close this page? You cannot recover the marks you made!";
   }
 });
 
-document.getElementById("layer").focus();
+if (_select_layer){ $("#layer > option[value='" + _select_layer + "']").prop("selected", true); }
+if (search_params.get("input")) { $("#input").val(search_params.get("input")); }
+
+if (_select_layer || search_params.get("input")){ run(true); }
+else { document.getElementById("layer").focus(); }
 
 </script>
 </body>
