@@ -287,6 +287,7 @@ const addImage = function(line) {
 
 const run = function() {
   window.stop();
+  record_output();
 
   const current_layer = _layer;
   const current_source = _source;
@@ -301,8 +302,6 @@ const run = function() {
   if (!layer_source[0]) $("#default-layer").prop("selected", true);
 
   if ((current_source != _source) || (!current_layer) || (!current_scale) || (!current_size) || $(".pic").length == 0){
-    record_output();
-
     var lines = $("#input").val().trim().split(/\n/);
     const has_header = parseHeader(lines[0]);
     if (has_header == -1) return;
