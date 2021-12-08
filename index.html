@@ -140,7 +140,7 @@ NGC5602f    215.5340	50.6674</textarea></p>
           <option value="halpha">Halpha Map</option>
           <option value="sfd">SFD Dust Map</option>
           <option value="vlass1.2">VLASS</option>
-          <option value="dr16:sdss">SDSS: DR16</option>
+          <option value="dr16:sdss">SDSS: DR17</option>
           <option value="poss2ukstu_red:dss">DSS: POSS2/UKSTU Red</option>
           <option value="poss2ukstu_blue:dss">DSS: POSS2/UKSTU Blue</option>
           <option value="poss2ukstu_ir:dss">DSS: POSS2/UKSTU IR</option>
@@ -198,13 +198,13 @@ if (!_select_layer && $("#layer > option[value='" + _select_layer + "']").length
 
 const _image_urls = {
   "desi": "https://www.legacysurvey.org/viewer" + _use_dev + "/cutout.jpg?ra=${ra}&dec=${dec}&pixscale=${scale}&layer=${layer}&size=180",
-  "sdss": "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg?TaskName=Skyserver.Chart.List&ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180",
+  "sdss": "https://skyserver.sdss.org/dr17/SkyServerWS/ImgCutout/getjpeg?ra=${ra}&dec=${dec}&scale=${scale}&width=180&height=180",
   "dss": "https://archive.stsci.edu/cgi-bin/dss_search?v=${layer}&r=${ra}&d=${dec}&e=J2000&h=${size}&w=${size}&f=gif"
 };
 
 const _link_urls = {
   "desi": "https://www.legacysurvey.org/viewer" + _use_dev + "?ra=${ra}&dec=${dec}&layer=${layer}&zoom=14",
-  "sdss": "https://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}",
+  "sdss": "https://skyserver.sdss.org/dr17/VisualTools/navi?ra=${ra}&dec=${dec}",
   "desi-alt": "https://viewer.legacysurvey.org/?ra=${ra}&dec=${dec}&layer=${layer}&zoom=14",
   "dss": "https://archive.stsci.edu/cgi-bin/dss_search?v=${layer}&r=${ra}&d=${dec}&e=J2000&h=15&w=15&f=gif"
 };
