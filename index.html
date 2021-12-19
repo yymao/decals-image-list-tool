@@ -214,6 +214,10 @@ const _linked_img_template = "<a class='plink' href='${link_url}'>${img_dom}</a>
 const _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
 const _default_layer = $("#default-layer").attr("value");
 
+const escapeHtml = function(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 const parseHeader = function(line_raw) {
   const line = line_raw.trim();
   var has_header = true;
@@ -302,7 +306,7 @@ const run = function() {
   if (!layer_source[0]) $("#default-layer").prop("selected", true);
 
   if ((current_source != _source) || (!current_layer) || (!current_scale) || (!current_size) || $(".pic").length == 0){
-    var lines = $("#input").val().trim().split(/\n/);
+    var lines = escapeHtml($("#input").val()).trim().split(/\n/);
     const has_header = parseHeader(lines[0]);
     if (has_header == -1) return;
     if (has_header) lines.shift();
