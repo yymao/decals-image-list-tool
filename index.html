@@ -50,6 +50,11 @@
     padding: 0;
     width: 200px;
   }
+  .info_button{
+    margin: 20px auto;
+    width: 7em;
+    display: none;
+  }
   .options > label{
     margin: 0.1em 0.4em;
     display: inline-block;
@@ -173,6 +178,7 @@ NGC5602f    215.5340	50.6674</textarea></p>
 </form>
 </div>
 <div id="list"></div>
+<div class="info_button" id="loading"><span class="pure-button pure-button-disabled" style="border-radius: 4px;">Loading...</span></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cash/8.1.1/cash.min.js" integrity="sha512-X+cPfvYTMQ4sCK62U3QG9rdhziHcvR48TwiEJmlaXOpQH/aSaarxkL+zahylcvcZLDkGujg4o/ORdjSeBsRlMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -185,6 +191,12 @@ const _use_dev = search_params.has("dev") ? "-dev" : "";
 const _do_rand_rot = search_params.has("randrot");
 var _select_layer = search_params.get("layer");
 if (!_select_layer && $("#layer > option[value='" + _select_layer + "']").length == 0) _select_layer = false;
+
+var delay_count;
+const delay = function(){
+    const delay_time = (delay_count % 80) ? ((delay_count % 20) ? 20 : 500) : 5000 ;
+    return new Promise(resolve => {setTimeout(resolve, delay_time);});
+};
 
 /* When NERSC is down
 (function(){
@@ -211,7 +223,7 @@ const _link_urls = {
   "dss": "https://archive.stsci.edu/cgi-bin/dss_search?v=${layer}&r=${ra}&d=${dec}&e=J2000&h=15&w=15&f=gif"
 };
 
-const _img_dom_template = "<img class='pic ${marked} ${rot}' title='${title}' src='${img_url}' width='180' height='180' />";
+const _img_dom_template = "<img class='pic ${marked} ${rot}' title='${title}' src='${img_url}' width='180' height='180' loading='lazy' />";
 const _linked_img_template = "<a class='plink' href='${link_url}'>${img_dom}</a>";
 const _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
 const _default_layer = $("#default-layer").attr("value");
@@ -291,9 +303,10 @@ const addImage = function(line) {
   $(out).appendTo(document.getElementById("list"));
 };
 
-const run = function() {
+const run = async function() {
   window.stop();
   record_output();
+  delay_count = 1;
 
   const current_layer = _layer;
   const current_source = _source;
@@ -314,19 +327,25 @@ const run = function() {
     if (has_header) lines.shift();
 
     $("#list").empty();
-    lines.forEach(addImage);
+    $("#loading").show();
+    for (const line of lines) {
+      addImage(line);
+      await delay();
+    }
     update_click_events();
+    $("#loading").hide();
     return;
   }
 
   if (current_layer == _layer && current_size == _size && current_scale == _scale) return;
-  $(".pic").each((i, elem) => {
+  for (const elem of $(".pic").get()){
     const url = $(elem).attr("src")
                 .replace("="+current_layer+"&", "="+_layer+"&")
                 .replace("scale="+current_scale+"&", "scale="+_scale+"&")
                 .replace("h="+current_size+"&w="+current_size, "h="+_size+"&w="+_size);
     $(elem).attr("src", url);
-  });
+    await delay();
+  }
 
   if (current_layer == _layer) return;
   $(".plink").each((i, elem) => {
