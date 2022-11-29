@@ -14,7 +14,6 @@
   <meta name="keywords"
     content="astronomy, survey, cutout, image, imaging, photmetric, SDSS, DESI, DSS, DES, HSC, GALEX, WISE, DESI Legacy Imaging Surveys, target selection, javascript" />
 
-  <link rel="preconnect" href="https://www.legacysurvey.org/" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.2.0/base-min.min.css" integrity="sha512-yhE6062TCkGPY2EvgbmzzVqiBe6Aq2/U3iwmZwjQ96uMwz4XMPI4wNFZv0/wehlzm2WFxs6rmWpViicTCnL13w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.2.0/buttons-min.min.css" integrity="sha512-V2cF8nh1XgbM+ODfma6s2c/plJlLyPTYHTPW2ZIHU5vBNm8HXJLWQkovLmBP65YvJPOvv4Rtl+pUVB8F/CzpEA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.2.0/forms-min.min.css" integrity="sha512-hef4tvE5U32LMu8yBrUOV44nrrBkvdqOcbHC3fwD+ZsZGvqu9nIGG6Gd9NXbhx6JXPQSmonumKOkhWgsGW05uQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -192,9 +191,10 @@ const _do_rand_rot = search_params.has("randrot");
 var _select_layer = search_params.get("layer");
 if (!_select_layer && $("#layer > option[value='" + _select_layer + "']").length == 0) _select_layer = false;
 
-var delay_count;
+var delay_count = 0;
 const delay = function(){
-    const delay_time = (delay_count % 80) ? ((delay_count % 20) ? 20 : 500) : 5000 ;
+    var delay_time = (delay_count % 80) ? ((delay_count % 20) ? 10 : 1000) : 5000 ;
+    delay_count += 1;
     return new Promise(resolve => {setTimeout(resolve, delay_time);});
 };
 
