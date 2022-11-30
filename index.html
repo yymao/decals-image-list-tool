@@ -193,7 +193,7 @@ if (!_select_layer && $("#layer > option[value='" + _select_layer + "']").length
 
 var delay_count = 0;
 const delay = function(){
-    var delay_time = (delay_count % 80) ? ((delay_count % 20) ? 10 : 1000) : 5000 ;
+    var delay_time = (delay_count > 20 && _source == "desi") ? 200 : 5;
     delay_count += 1;
     return new Promise(resolve => {setTimeout(resolve, delay_time);});
 };
@@ -223,7 +223,7 @@ const _link_urls = {
   "dss": "https://archive.stsci.edu/cgi-bin/dss_search?v=${layer}&r=${ra}&d=${dec}&e=J2000&h=15&w=15&f=gif"
 };
 
-const _img_dom_template = "<img class='pic ${marked} ${rot}' title='${title}' src='${img_url}' width='180' height='180' loading='lazy' />";
+const _img_dom_template = "<img class='pic ${marked} ${rot}' title='${title}' src='${img_url}' width='180' height='180' ${lazy} />";
 const _linked_img_template = "<a class='plink' href='${link_url}'>${img_dom}</a>";
 const _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
 const _default_layer = $("#default-layer").attr("value");
@@ -299,6 +299,7 @@ const addImage = function(line) {
        .replace(/\${layer}/g, _layer)
        .replace("${title}", items.map((item, i) => (_cols[i] + " = " + item.trim())).join("\n"))
        .replace("${marked}", mark ? "marked" : "")
+       .replace("${lazy}", (_source == "desi") ? "" : "loading='lazy'")
        .replace("${rot}", _do_rand_rot ? _rot_classes[Math.floor(Math.random()*_rot_classes.length)] : "");
   $(out).appendTo(document.getElementById("list"));
 };
