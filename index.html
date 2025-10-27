@@ -203,17 +203,17 @@ const delay = function(){
     return new Promise(resolve => {setTimeout(resolve, delay_time);});
 };
 
-/* When NERSC is down
+When NERSC is down
 (function(){
   var t = new Date().getTime();
-  var t_out = Date.parse('9 Jul 2021 10:00:00 PDT');
-  var t_back = Date.parse('12 Jul 2021 20:00:00 PDT');
+  var t_out = Date.parse('8 Oct 2025 02:00:00 PDT');
+  var t_back = Date.parse('1 Nov 2025 00:00:00 PDT');
   if ((t >= t_out) && (t < t_back)){
     nersc_is_down = true;
     $("span.warning").show();
   }
 })();
-*/
+
 
 const _image_urls = {
   "desi": "https://www.legacysurvey.org/viewer" + _use_dev + "/cutout.jpg?ra=${ra}&dec=${dec}&pixscale=${scale}&layer=${layer}&size=180",
