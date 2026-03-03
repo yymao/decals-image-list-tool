@@ -185,7 +185,7 @@ NGC5602f    215.5340	50.6674</textarea></p>
 <div class="info_button" id="loading"><span class="pure-button pure-button-disabled" style="border-radius: 4px;">Loading...</span></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cash/8.1.1/cash.min.js" integrity="sha512-X+cPfvYTMQ4sCK62U3QG9rdhziHcvR48TwiEJmlaXOpQH/aSaarxkL+zahylcvcZLDkGujg4o/ORdjSeBsRlMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cash/8.1.5/cash.min.js" integrity="sha512-rUmgzTTLW3Ncifitwec3TMK8qQJK17vYU7r7RjMnXfg2SoEWvVWn7doqhtB8j0KTIHIr3iv4CfOXXEJbPFll6Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 var nersc_is_down = false;
 var _cols, _i_ra, _i_dec, _has_mark, _delimiter, _scale, _size, _layer, _source;
@@ -196,11 +196,9 @@ const _do_rand_rot = search_params.has("randrot");
 var _select_layer = search_params.get("layer");
 if (!_select_layer && $("#layer > option[value='" + _select_layer + "']").length == 0) _select_layer = false;
 
-var delay_count = 0;
+
 const delay = function(){
-    var delay_time = (delay_count > 20 && _source == "desi") ? 200 : 5;
-    delay_count += 1;
-    return new Promise(resolve => {setTimeout(resolve, delay_time);});
+    return new Promise(resolve => {setTimeout(resolve, 50);});
 };
 
 // When NERSC is down
@@ -228,7 +226,7 @@ const _link_urls = {
   "dss": "https://archive.stsci.edu/cgi-bin/dss_search?v=${layer}&r=${ra}&d=${dec}&e=J2000&h=15&w=15&f=gif"
 };
 
-const _img_dom_template = "<img class='pic ${marked} ${rot}' title='${title}' src='${img_url}' width='180' height='180' ${lazy} />";
+const _img_dom_template = "<img class='pic ${marked} ${rot}' title='${title}' src='${img_url}' width='180' height='180' loading='lazy' onerror='handleImageError(this)' />";
 const _linked_img_template = "<a class='plink' href='${link_url}'>${img_dom}</a>";
 const _rot_classes = ["", "r1", "r2", "r3", "r0f", "r1f", "r2f", "r3f"];
 const _default_layer = $("#default-layer").attr("value");
@@ -288,6 +286,18 @@ const parseHeader = function(line_raw) {
   return has_header;
 };
 
+const handleImageError = function(img) {
+  match = img.src.match(/&retry=(\d+)/);
+  retry_count = match ? (parseInt(match[1]) + 1) : 1;
+  img.dataset.retrySrc = img.src.replace(/&retry=\d+/g, "") + "&retry=" + retry_count;
+
+  const delay_time = Math.floor(Math.random() + Math.sqrt(retry_count)) * 200;
+
+  setTimeout(() => {
+    img.src = img.dataset.retrySrc;
+  }, delay_time);
+};
+
 const addImage = function(line) {
   if (!line.replace(/[-=\s]/g, "")) return;
   var items, out, mark;
@@ -304,7 +314,6 @@ const addImage = function(line) {
        .replace(/\${layer}/g, _layer)
        .replace("${title}", items.map((item, i) => (_cols[i] + " = " + item.trim())).join("\n"))
        .replace("${marked}", mark ? "marked" : "")
-       .replace("${lazy}", (_source == "desi") ? "" : "loading='lazy'")
        .replace("${rot}", _do_rand_rot ? _rot_classes[Math.floor(Math.random()*_rot_classes.length)] : "");
   $(out).appendTo(document.getElementById("list"));
 };
@@ -312,7 +321,6 @@ const addImage = function(line) {
 const run = async function() {
   window.stop();
   record_output();
-  delay_count = 1;
 
   const current_layer = _layer;
   const current_source = _source;
@@ -346,6 +354,7 @@ const run = async function() {
   if (current_layer == _layer && current_size == _size && current_scale == _scale) return;
   for (const elem of $(".pic").get()){
     const url = $(elem).attr("src")
+                .replace(/&retry=\d+/g, '')
                 .replace("="+current_layer+"&", "="+_layer+"&")
                 .replace("scale="+current_scale+"&", "scale="+_scale+"&")
                 .replace("h="+current_size+"&w="+current_size, "h="+_size+"&w="+_size);
